@@ -1,0 +1,28 @@
+.navbar{
+    margin-left: auto;
+    padding: 10px;
+    font-weight: 700;
+}
+
+.navbar a{
+    padding: 5px;
+    text-decoration: none;
+    color: rgb(32, 32, 110);
+    border: solid 3px rgb(230, 70, 70);
+}
+
+.top{
+    display: flex;
+    justify-content: space-between;
+}
+
+.options-icon{
+    width: 35px;
+    height: 35px;   
+    padding: 10px;
+}
+
+.options-button{
+    width: 10px;
+    height: 10px;
+}

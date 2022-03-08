@@ -1,0 +1,15 @@
+.gpm-banner {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    color: black;
+    text-shadow: 3px 1px rgb(230, 70, 70);
+    text-align: left;
+    padding: 32px;
+    border-bottom: solid 3px black;
+}
+
+.gpm-logo{
+    width: 70px;
+    height: fit-content;
+}
