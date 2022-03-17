@@ -1,9 +1,34 @@
 const express = require('express');
 const path = require('path');
-
+const dotenv = require('dotenv');
 const app = express();
+const cors = require ('cors');
+const helmet = require('helmet')
+const expressRateLimit = require('express-rate-limit');
+
 const postRoutes = require('./routes/post');
 const userRoutes = require('./routes/user');
+
+//Set up environment variables access
+dotenv.config({path:".env"});
+
+const apiRequestLimiter = expressRateLimit({
+  windowMs: 15 * 60 * 1000, //request window : 15 minutes
+  max: 1000, //max requests that can be sent by each ip address in the request window (1000 requests in 15 minutes)
+  message: "Too much requests !"
+});
+
+//Limit requests
+app.use(apiRequestLimiter);
+
+//Allow CORS request
+app.use(cors({
+    origin:['http://localhost:3000','http://127.0.0.1:8081'],
+    credentials:true
+}));
+
+//Set up helmet for security headers
+app.use(helmet());
 
  app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');

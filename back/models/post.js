@@ -8,6 +8,7 @@ const mongoose = require('mongoose');
     dislikes: { type: Number, required: false, default: 0 },
     usersLiked: { type: Array, required: false, default: [] },
     usersDisliked: { type: Array, required: false, default: [] },
+    comments : {type: Array, required: false, default: []}
   });
   
   module.exports = mongoose.model('post', postSchema);

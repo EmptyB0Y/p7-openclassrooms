@@ -4,12 +4,33 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 
+getAuth = () =>{
+  return "mongodb+srv://"+String(process.env.DB_USERNAME)+":"+String(process.env.DB_USERPASS)+"@"+String(process.env.DB_CLUSTERNAME)+".ukoxa.mongodb.net/"+String(process.env.DB_NAME)+"?retryWrites=true&w=majority";
+}
+
+getAuthorizedAdminIps = () =>{
+  let str = ""+String(process.env.AUTHORIZED_ADMIN_IPS)+"";
+  let tab = [];
+  let s = "";
+  let j = 0;
+  for(let i = 0; i < str.length; i++){
+    if(str.charAt(i) === ';'){
+      tab[j] = s;
+      s = "";
+      j++;
+    }else{
+    s += str.charAt(i); 
+    }
+  }
+  return tab;
+}
+
 exports.login = (req,res) =>{
   if (!req.body.email || !req.body.password) {
     return res.status(400).send(new Error('Bad request!'));
   }
 
-    mongoose.connect('mongodb+srv://user0:p4ssw0rd@cluster0.ukoxa.mongodb.net/groupomania?retryWrites=true&w=majority',
+    mongoose.connect(getAuth(),
     { useNewUrlParser: true,
     useUnifiedTopology: true }).then(() =>{
       User.findOne({ email: req.body.email })
@@ -26,7 +47,7 @@ exports.login = (req,res) =>{
               userId: user._id,
               token: jwt.sign(
                 { userId: user._id },
-                'HyperSecretiveTokenNoOneKnowsAbout',
+                process.env.JSON_TOKEN,
                 { expiresIn: '24h' }
               )    
             });
@@ -42,7 +63,7 @@ exports.login = (req,res) =>{
         return res.status(400).send(new Error('Bad request!'));
       }
 
-    mongoose.connect('mongodb+srv://user0:p4ssw0rd@cluster0.ukoxa.mongodb.net/groupomania?retryWrites=true&w=majority',
+    mongoose.connect(getAuth(),
     { useNewUrlParser: true, 
     useUnifiedTopology: true })
     .then(() =>{
@@ -51,30 +72,26 @@ exports.login = (req,res) =>{
       .then(hash => {
         let access = "user";
 
-          fs.readFile('../superpassword.txt', (err, data) => {
-            if (err)
-              throw err;
+      if(req.body.superPassword){
+        console.log("Admin creation request from "+req.ip);
+        authip = getAuthorizedAdminIps();
+        if (process.env.SUPER_PASS === req.body.superPassword && authip.include(req.ip)) {
+          console.log(data.toString());
+          access = "admin";
+        }
+        else {
+          return res.status(401).json({message: "Unauthorized !"});
+        }
+      }
+      const user = new User({
+        email: req.body.email,
+        password: hash,
+        access: access
+      });
 
-            if(req.body.superPassword){
-
-              if (data.toString() === req.body.superPassword) {
-                console.log(data.toString());
-                access = "admin";
-              }
-              else {
-                return res.status(401).json({message: "Unauthorized !"});
-              }
-            }
-              const user = new User({
-                email: req.body.email,
-                password: hash,
-                access: access
-              });
-              user.save()
-              .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
-              .catch(() => res.status(400).json({ message: 'Erreur lors de la création de l\'utilisateur !' }));
-          })
-        
+      user.save()
+      .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
+      .catch(() => res.status(400).json({ message: 'Erreur lors de la création de l\'utilisateur !' }));
       })
     .catch(() => res.status(500).json({ message: 'Erreur lors du hashage du mot de passe !' }));
     })
@@ -84,7 +101,7 @@ exports.login = (req,res) =>{
 
 exports.delete = (req, res) =>{
  
-  mongoose.connect('mongodb+srv://user0:p4ssw0rd@cluster0.ukoxa.mongodb.net/Groupomania?retryWrites=true&w=majority',
+  mongoose.connect(getAuth(),
   { useNewUrlParser: true, 
   useUnifiedTopology: true })
   .then(() =>{
@@ -99,7 +116,7 @@ exports.delete = (req, res) =>{
 };
 
 exports.getAllUsers = (req,res) =>{
-  mongoose.connect('mongodb+srv://user0:p4ssw0rd@cluster0.ukoxa.mongodb.net/groupomania?retryWrites=true&w=majority',
+  mongoose.connect(getAuth(),
   { useNewUrlParser: true,
   useUnifiedTopology: true })
   .then(() =>{
@@ -119,7 +136,7 @@ exports.getAllUsers = (req,res) =>{
 };
 
 exports.getOneUser = (req, res) => {
-  mongoose.connect('mongodb+srv://user0:p4ssw0rd@cluster0.ukoxa.mongodb.net/groupomania?retryWrites=true&w=majority',
+  mongoose.connect(getAuth(),
   { useNewUrlParser: true,
   useUnifiedTopology: true })
   .then(() =>{

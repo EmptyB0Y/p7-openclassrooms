@@ -1,11 +1,15 @@
 const Post = require('../models/post');
 const mongoose = require('mongoose');
 const fs = require('fs')
-const user = require('./user'); 
-const User = user.getUserSchema();
+const userController = require('./user'); 
+const User = userController.getUserSchema();
+
+getAuth = () =>{
+  return "mongodb+srv://"+String(process.env.DB_USERNAME)+":"+String(process.env.DB_USERPASS)+"@"+String(process.env.DB_CLUSTERNAME)+".ukoxa.mongodb.net/"+String(process.env.DB_NAME)+"?retryWrites=true&w=majority";
+}
 
 exports.getAllPosts = (req,res) =>{
-  mongoose.connect('mongodb+srv://user0:p4ssw0rd@cluster0.ukoxa.mongodb.net/groupomania?retryWrites=true&w=majority',
+  mongoose.connect(getAuth(),
   { useNewUrlParser: true,
   useUnifiedTopology: true }).then(() =>{
   Post.find()
@@ -15,7 +19,7 @@ exports.getAllPosts = (req,res) =>{
   };
 
   exports.getOnePost = (req, res) => {
-    mongoose.connect('mongodb+srv://user0:p4ssw0rd@cluster0.ukoxa.mongodb.net/groupomania?retryWrites=true&w=majority',
+    mongoose.connect(getAuth(),
     { useNewUrlParser: true,
     useUnifiedTopology: true }).then(() =>{
     Post.findOne({ _id: req.params.id })
@@ -36,18 +40,24 @@ exports.getAllPosts = (req,res) =>{
     }
 
     let PostCreated = JSON.parse(req.body.post);
-    PostCreated.userId = req.body.userId;
+    PostCreated.userId = res.locals.userId;
+    if(PostCreated.likes || 
+      PostCreated.dislikes || 
+      PostCreated.usersDisliked || 
+      PostCreated.usersLiked || 
+      PostCreated.comments){
+      return res.status(401).send(new Error('Unauthorized !'));
+    }
 
     if(req.file){
       PostCreated.imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
     }
 
-    mongoose.connect('mongodb+srv://user0:p4ssw0rd@cluster0.ukoxa.mongodb.net/groupomania?retryWrites=true&w=majority',
+    mongoose.connect(getAuth(),
     { useNewUrlParser: true,
     useUnifiedTopology: true })
     .then(() => {
           const post = new Post({ ...PostCreated });
-          console.log(post);  
           post.save().then(() => {
             res.status(201).json({message: "Objet créé !"});
           })
@@ -86,9 +96,9 @@ exports.getAllPosts = (req,res) =>{
       !req.body.likes &&
       !req.body.dislikes &&
       !req.body.usersLiked &&
-      !req.body.usersDisliked) && !req.body.post) {
-        return res.status(400).send(
-          `post : {"content":String}`
+      !req.body.usersDisliked &&
+      !req.body.comments) && !req.body.post) {
+        return res.status(400).send(new Error('Bad request!')
           );
     }
     
@@ -101,12 +111,19 @@ exports.getAllPosts = (req,res) =>{
     }
     else{
       PostModified = { ...req.body};
+      if(PostModified.likes || 
+        PostModified.dislikes || 
+        PostModified.usersDisliked || 
+        PostModified.usersLiked || 
+        PostModified.comments){
+          return res.status(401).send(new Error('Unauthorized!'));
+        }
     }
     if(req.file){
       PostModified.imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
     }
 
-    mongoose.connect('mongodb+srv://user0:p4ssw0rd@cluster0.ukoxa.mongodb.net/groupomania?retryWrites=true&w=majority',
+    mongoose.connect(getAuth(),
     { useNewUrlParser: true, 
     useUnifiedTopology: true })
     .then(() =>{
@@ -163,7 +180,7 @@ exports.getAllPosts = (req,res) =>{
 
   exports.deletePost = (req,res) => {
 
-    mongoose.connect('mongodb+srv://user0:p4ssw0rd@cluster0.ukoxa.mongodb.net/groupomania?retryWrites=true&w=majority',
+    mongoose.connect(getAuth(),
     { useNewUrlParser: true, 
     useUnifiedTopology: true })
     .then(() =>{
@@ -196,7 +213,7 @@ exports.getAllPosts = (req,res) =>{
   };
 
   exports.postLike = (req,res) => {
-    mongoose.connect('mongodb+srv://user0:p4ssw0rd@cluster0.ukoxa.mongodb.net/groupomania?retryWrites=true&w=majority',
+    mongoose.connect(getAuth(),
     { useNewUrlParser: true, 
     useUnifiedTopology: true })
     .then(() =>{
@@ -277,9 +294,12 @@ exports.getAllPosts = (req,res) =>{
         .catch(() => res.status(404).json({ message: "Objet non trouvé  !" }));
       }
       else{
-        console.log("bad request"); 
         return res.status(400).send(new Error('Bad request!'));
       }
     })
     .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
   };
+  
+  exports.getPostSchema = () =>{
+    return Post;
+  }

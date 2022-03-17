@@ -1,0 +1,56 @@
+.posts{
+    background-color: aliceblue;
+    border: 2px solid rgb(32, 32, 110);
+    width: 70%;
+    margin-top: 20px;
+    margin-left: 20px;
+}
+
+.posts-padding{
+    padding: 10px;
+}
+.posts-content ul{
+    list-style-type: none
+}
+.post-content{
+    padding-bottom: 15px;
+}
+.post-reviews{
+    border-top: 2px solid black;
+    display: flex;
+    flex-direction: row;
+}
+.likes-dislikes{
+    margin-top: 15px;
+    margin-right: 20px;
+    display: flex;
+    width: 80px;
+    justify-content: space-between;
+}
+.likes-dislikes p{
+    font-weight: 500;
+}
+.post-like{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.post-dislike{
+    display: flex;
+    flex-direction: row;
+}
+.comments{
+    font-size: 20px;
+    font-weight: 500;
+    text-decoration: underline;
+    margin-right: 50px;
+}
+.comments a{
+    color: black;
+}
+.like-icon{
+    margin-bottom: 2px;
+}
+.dislike-icon{
+    margin-top: 4px;
+}
