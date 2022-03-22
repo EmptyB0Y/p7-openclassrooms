@@ -23,7 +23,7 @@ app.use(apiRequestLimiter);
 
 //Allow CORS request
 app.use(cors({
-    origin:['http://localhost:3000','http://127.0.0.1:8081'],
+    origin:['http://localhost:3001','http://127.0.0.1:3000'],
     credentials:true
 }));
 

@@ -25,9 +25,23 @@ exports.getAllCommentsFromPost = (req,res) =>{
       res.status(200).json(postComments)
     })
     .catch(error => res.status(400).json({ error }));
-  });
+  })
+  .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
 };
-  
+
+exports.getOneComment = (req,res) =>{
+    mongoose.connect(getAuth(),
+    { useNewUrlParser: true,
+    useUnifiedTopology: true }).then(() =>{
+    Comment.findOne({_id : req.params.id})
+    .then((commentFound) =>{
+      res.status(200).json(commentFound);
+    })
+    .catch(error => res.status(400).json({ error }));
+  })
+  .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
+};
+
 exports.postComment = (req,res) => {
     if(!req.body.comment){
       return res.status(400).send(new Error('Bad request!'));
@@ -48,11 +62,10 @@ exports.postComment = (req,res) => {
               text : req.body.comment,
               post : post._id,
           });
-
+          console.log(comment);
           comment.save()
           .then(() => {
             post.comments.push({commentId : String(comment._id)});
-
             let PostCommented = {
                 "userId" : post.userId,
                 "content" : post.content,
