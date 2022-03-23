@@ -13,16 +13,19 @@ export const LoginUser = (email,password) =>{
       .catch((err) => err)
 }
 
-export const SignupUser = (email,password,superPassword) =>{
+export const SignupUser = (email,password,firstname,lastname,description) =>{
 
     const bodyParameters = {
         email : email,
-        password : password
+        password : password,
+        firstname : firstname,
+        lastname: lastname,
+        description: description
         };
 
-    if(typeof superPassword !== undefined){
-        bodyParameters.superPassword = superPassword;
-    }
+   // if(superPassword !== null){
+    //    bodyParameters.superPassword = superPassword;
+   // }
 
     return axios.post(BASE_URL + 'signup/',bodyParameters)
       .then((res) => res.data)

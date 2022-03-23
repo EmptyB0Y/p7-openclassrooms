@@ -11,5 +11,6 @@ router.post('/auth/login',userCtrl.login);
 router.delete('/delete',auth,userCtrl.delete);
 router.get('/admin/users',auth,userCtrl.getAllUsers);
 router.get('/admin/users/:id',auth,userCtrl.getOneUser);
+router.get('/profile',auth,userCtrl.getProfile);
 
 module.exports = router;

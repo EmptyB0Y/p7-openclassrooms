@@ -12,7 +12,7 @@ export const GetComments = (postId) => {
       .catch((err) => err)
 }
 
-export const AddComment = (postId,comment) =>{
+export const PostComment = (postId,comment) =>{
     const options = {
         headers: { Authorization: 'Bearer '+sessionStorage.getItem("token") }
     };

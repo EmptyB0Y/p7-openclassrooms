@@ -18,6 +18,28 @@ exports.getAllPosts = (req,res) =>{
   });
   };
 
+  exports.getAllPostsFromUser = (req,res) =>{
+    mongoose.connect(getAuth(),
+    { useNewUrlParser: true,
+    useUnifiedTopology: true }).then(() =>{
+    User.findOne({_id : res.locals.userId})
+    .then(userFound => {
+        Post.find()
+        .then(posts => {
+          let postsFromUser = []
+          for(let i = 0; i < posts.length; i++){
+            if(posts[i].userId === res.locals.userId){
+              postsFromUser.push(posts[i]);
+            }
+          }
+          res.status(200).json(postsFromUser)
+        })
+        .catch(error => res.status(400).json({ error }));
+      });
+    })
+    .catch(error => res.status(404).json({ error }));
+    };
+
   exports.getOnePost = (req, res) => {
     mongoose.connect(getAuth(),
     { useNewUrlParser: true,
@@ -33,13 +55,15 @@ exports.getAllPosts = (req,res) =>{
       /*Post format : 
       {"content":String}*/
 
-    if (!req.body.post) {
+      if (!req.body.post) {
       return res.status(400).send(
         `post : {"content":String}`
         );
     }
 
-    let PostCreated = JSON.parse(req.body.post);
+    let PostCreated = {...req.body.post};
+    console.log("Post created : ");
+    console.log(PostCreated);
     PostCreated.userId = res.locals.userId;
     if(PostCreated.likes || 
       PostCreated.dislikes || 

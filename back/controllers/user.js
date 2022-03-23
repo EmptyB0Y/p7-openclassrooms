@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const Profile = require('../models/profile');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -59,7 +60,7 @@ exports.login = (req,res) =>{
 };
 
   exports.register = (req, res) => {
-    if (!req.body.email || !req.body.password) {
+    if (!req.body.email || !req.body.password || !req.body.firstname) {
         return res.status(400).send(new Error('Bad request!'));
       }
 
@@ -90,9 +91,16 @@ exports.login = (req,res) =>{
       });
 
       user.save()
-      .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
-      .catch(() => res.status(400).json({ message: 'Erreur lors de la création de l\'utilisateur !' }));
+      .then(() => {
+        const profile = new Profile({...req.body});
+        profile.userId = user._id;
+        console.log(profile);
+        profile.save()
+        .then(() => res.status(201).json({ message: 'Profil créé !' }))
+        .catch((e)=> res.status(500).json({ message: 'Erreur lors de la création du profil !', error: e }));
       })
+      .catch(()=> res.status(500).json({ message: 'Erreur lors de la création de l\'utilisateur !' }));
+    })
     .catch(() => res.status(500).json({ message: 'Erreur lors du hashage du mot de passe !' }));
     })
   .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
@@ -106,15 +114,28 @@ exports.delete = (req, res) =>{
   useUnifiedTopology: true })
   .then(() =>{
       User.deleteOne({_id : req.body.userId})
-      .then(() => res.status(200).json({ message: 'Utilisateur supprimé !'}))
-      .catch(error => res.status(400).json({ error }));
+      .then(() => {
+        Profile.find((profiles) => {
+          for(let i = 0; i < profiles.length; i++){
+            if(profiles[i].userId === res.locals.userId){
+              Profile.deleteOne({_id: profiles[i]._id})
+              .then(() => {
+                  res.status(200).json({ message: 'Profil supprimé !'});
+              })
+              .catch(() => res.status(400).json({ message: 'Erreur lors de la deletion du profil !' }));
+            }
+          }
+        })
+        .catch(() => res.status(404).json({message: 'Not found !'}));
+      })
+      .catch(() => res.status(400).json({ message: 'Erreur lors de la deletion de l\'utilisateur !' }));
   })
-  .catch(error => {
-    console.log(error);
+  .catch(() => {
     return res.status(404).json({ message: "Connexion à MongoDB échouée !" });
   });
 };
 
+//ADMIN
 exports.getAllUsers = (req,res) =>{
   mongoose.connect(getAuth(),
   { useNewUrlParser: true,
@@ -128,7 +149,7 @@ exports.getAllUsers = (req,res) =>{
         .catch(error => res.status(400).json({ error }));
       }
       else{
-        return res.status(401).json({message: "Unauthorized !"});
+        return res.status(403).json({message: "Forbidden !"});
       }
     });
   })
@@ -148,12 +169,36 @@ exports.getOneUser = (req, res) => {
         .catch(error => res.status(404).json({ error }));
       }
       else{
-        return res.status(401).json({message: "Unauthorized !"});
+        return res.status(403).json({message: "Forbidden !"});
       }
     });
   })  
   .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
 };
+//ADMIN
+
+exports.getProfile = (req, res) =>{
+  mongoose.connect(getAuth(),
+  { useNewUrlParser: true,
+  useUnifiedTopology: true })
+  .then(() =>{
+    User.findOne({ _id: res.locals.userId })
+    .then(() => {
+      Profile.find()
+      .then((profiles) => {
+        console.log(profiles);
+        for(let i = 0; i < profiles.length; i++){
+          if(profiles[i].userId === res.locals.userId){
+            res.status(200).json(profiles[i]);
+          }
+        }
+      })
+      .catch(() => res.status(404).json({message: 'Not found !'}));
+    })
+    .catch(() => res.status(404).json({message: 'Not found !'}));
+  })
+  .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
+}
 
 exports.getUserSchema = () =>{
   return User;

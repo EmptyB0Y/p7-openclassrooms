@@ -1,0 +1,14 @@
+#addpost-arrow-submit{
+    height: 50px;
+    width: 50px;
+}
+#addpost-form{
+    margin-top: 50px;
+    margin-left: 70px;
+    display: flex;
+    align-items: center;
+}
+#addpost-input{
+    height: 50px;
+    width: 500px;
+}

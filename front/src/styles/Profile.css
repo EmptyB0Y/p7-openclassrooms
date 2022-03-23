@@ -1,0 +1,29 @@
+.profile-frame{
+    margin-left: 20px;
+}
+
+.main-infos{
+    display: flex;
+    flex-direction: row;    
+    padding-left: 20px;
+    color: cornflowerblue;
+}
+
+#picture-frame{
+    display: flex;
+    justify-content: center;
+    height: 280px;
+    width: 280px;
+    margin-left: 30px;
+    border-radius: 20px ;
+    border: 3px solid rgb(32, 32, 110);
+}
+
+#profile-picture{
+    height: 285px;
+    width: fit-content;
+}
+
+#posts-frame ul{
+    list-style-type: none;
+}

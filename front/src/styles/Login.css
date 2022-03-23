@@ -9,3 +9,12 @@
 #login-component,#signup-component{
     margin-left: 15px;
 }
+
+.form-error{
+    background-color: rgb(226, 59, 59);
+    border-radius: 8px;
+    width: 500px;
+    text-align: center;
+    color: white;
+    display: none;
+}

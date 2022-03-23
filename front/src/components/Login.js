@@ -34,8 +34,11 @@ function handleSubmit(e) {
         if(data.token){
             sessionStorage.setItem("userId",data.userId)
             sessionStorage.setItem("token",data.token)
+            window.location.reload();
         }
-        window.location.reload();
+        else{
+            alert("Error during the logging !")
+        }
     });
 }
 
