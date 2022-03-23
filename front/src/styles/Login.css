@@ -2,3 +2,10 @@
     height: 10px;
     width: 10px;
 }
+#signup-component{
+    display: none;
+}
+
+#login-component,#signup-component{
+    margin-left: 15px;
+}
