@@ -3,11 +3,10 @@ import like from '../assets/Icons/like.png'
 import dislike from '../assets/Icons/dislike.png'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import {GetPosts} from '../services/posts.service'
-import {PostComment} from '../services/comments.service'
 import {Comments} from './Comments'
 
 export const Posts = () => {
-    const [isLoading, setLoading] = useState(false);
+
     const [posts, setPosts] = useState([]);
 
       useEffect(() => {
@@ -16,13 +15,10 @@ export const Posts = () => {
         .catch((err) => console.log(err)) 
       }, [])
 
-    if (isLoading) {
-        return <h1>LOADING...</h1>
-    }
 
-    let postsElement = (        
+    let postsElement = (
         <ul>
-          {posts.map((post) =>
+          {posts.slice(0).reverse().map((post) =>
             <li className='post' key={post._id}>
                 <div className='post-content'>
                   <div>
@@ -47,14 +43,8 @@ export const Posts = () => {
                       </div>
                   </div>
                   <div className='comments-section' id={'comments-'+post._id}>
-                    <Comments postId={post._id}/>
+                    <Comments id={post._id}/>
                   </div>
-              </div>
-              <div className='add-comment'>
-                  <form onSubmit={(e) => handleSubmit(post._id)}>
-                      <input name='input' className='add-comment-input'></input>
-                      <button className='add-comment-button'>post</button>
-                  </form>
               </div>
             </li>)}
         </ul>
@@ -75,17 +65,12 @@ export const Posts = () => {
     )
 }
 
-function handleClick(id,e) {
+const handleClick = (postId,e) => {
     e.preventDefault();
-    let x = document.getElementById("comments-"+id);
+    let x = document.getElementById("comments-"+postId);
     if (x.style.display === "none") {
         x.style.display = "block";
     } else {
         x.style.display = "none";
     }
-}
-
-function handleSubmit(postId,e) {
-    let text = e.target['input'].value;
-    PostComment(postId,text);
 }

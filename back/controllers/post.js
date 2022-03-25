@@ -22,24 +22,21 @@ exports.getAllPosts = (req,res) =>{
     mongoose.connect(getAuth(),
     { useNewUrlParser: true,
     useUnifiedTopology: true }).then(() =>{
-    User.findOne({_id : res.locals.userId})
-    .then(userFound => {
         Post.find()
         .then(posts => {
           let postsFromUser = []
           for(let i = 0; i < posts.length; i++){
-            if(posts[i].userId === res.locals.userId){
+            if(posts[i].userId === req.params.id){
               postsFromUser.push(posts[i]);
             }
           }
           res.status(200).json(postsFromUser)
         })
         .catch(error => res.status(400).json({ error }));
-      });
     })
     .catch(error => res.status(404).json({ error }));
-    };
-
+  };
+  
   exports.getOnePost = (req, res) => {
     mongoose.connect(getAuth(),
     { useNewUrlParser: true,

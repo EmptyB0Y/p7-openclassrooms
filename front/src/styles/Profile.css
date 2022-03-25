@@ -2,11 +2,20 @@
     margin-left: 20px;
 }
 
-.main-infos{
+#main-infos{
+    width: 300px;
     display: flex;
-    flex-direction: row;    
+    flex-direction: row;
+    justify-content: space-between;
     padding-left: 20px;
     color: cornflowerblue;
+}
+
+#secondary-infos{
+    width: 700px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
 #picture-frame{
@@ -26,4 +35,12 @@
 
 #posts-frame ul{
     list-style-type: none;
+}
+
+#edit-main-infos-btn{
+    height: 30px;
+}
+
+#edit-secondary-infos-btn{
+    height: 30px;
 }

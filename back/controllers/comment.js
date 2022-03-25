@@ -4,7 +4,6 @@ const postController = require('./post');
 const Post = postController.getPostSchema();
 const userController = require('./user'); 
 const User = userController.getUserSchema();
-const uuid = require('uuid');
 
 getAuth = () =>{
   return "mongodb+srv://"+String(process.env.DB_USERNAME)+":"+String(process.env.DB_USERPASS)+"@"+String(process.env.DB_CLUSTERNAME)+".ukoxa.mongodb.net/"+String(process.env.DB_NAME)+"?retryWrites=true&w=majority";

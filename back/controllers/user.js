@@ -3,7 +3,6 @@ const Profile = require('../models/profile');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const fs = require('fs');
 
 getAuth = () =>{
   return "mongodb+srv://"+String(process.env.DB_USERNAME)+":"+String(process.env.DB_USERPASS)+"@"+String(process.env.DB_CLUSTERNAME)+".ukoxa.mongodb.net/"+String(process.env.DB_NAME)+"?retryWrites=true&w=majority";
@@ -182,20 +181,29 @@ exports.getProfile = (req, res) =>{
   { useNewUrlParser: true,
   useUnifiedTopology: true })
   .then(() =>{
-    User.findOne({ _id: res.locals.userId })
-    .then(() => {
-      Profile.find()
-      .then((profiles) => {
-        console.log(profiles);
-        for(let i = 0; i < profiles.length; i++){
-          if(profiles[i].userId === res.locals.userId){
-            res.status(200).json(profiles[i]);
-          }
-        }
-      })
-      .catch(() => res.status(404).json({message: 'Not found !'}));
+    Profile.findOne({userId : res.locals.userId})
+    .then((ProfileFound) => {
+      console.log(ProfileFound);
+      res.status(200).json(ProfileFound)
     })
     .catch(() => res.status(404).json({message: 'Not found !'}));
+
+  })
+  .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
+}
+
+exports.getUserProfile = (req, res) =>{
+
+  mongoose.connect(getAuth(),
+  { useNewUrlParser: true,
+  useUnifiedTopology: true })
+  .then(() =>{
+      Profile.findOne({userId : req.params.id})
+      .then((ProfileFound) => {
+        console.log(ProfileFound);
+        res.status(200).json(ProfileFound)
+      })
+      .catch(() => res.status(404).json({message: 'Not found !'}));
   })
   .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
 }

@@ -28,7 +28,7 @@ function handleClickProfile(){
                     <a href="#" onClick={handleClickLogout} >LOG OUT</a>
                 </div>
             </div>
-            <Profile />
+            <Profile id={sessionStorage.getItem("userId")} />
         </div>,
           document.getElementById('root')
     );

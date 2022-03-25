@@ -2,35 +2,37 @@ import '../styles/Profile.css'
 import '../styles/Posts.css'
 import like from '../assets/Icons/like.png'
 import dislike from '../assets/Icons/dislike.png'
+import pen from '../assets/Icons/pen.webp'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import {GetProfile,GetProfilePosts} from '../services/profiles.service'
-import {PostComment} from '../services/comments.service'
 import {Comments} from './Comments'
 
-export const Profile = () =>{
-    const [isLoading, setLoading] = useState(false);
+export const Profile = (userId) =>{
     const [profile, setProfileInfos] = useState([]);
     const [posts, setProfilePosts] = useState([]);
 
       useEffect(() => {
-        GetProfile()
+        GetProfile(userId)
         .then(data => setProfileInfos(data))
         .catch((err) => console.log(err)) 
       }, [])
 
       useEffect(() => {
-        GetProfilePosts()
+        GetProfilePosts(userId)
         .then(data => setProfilePosts(data))
         .catch((err) => console.log(err)) 
       }, [])
 
-    if (isLoading) {
-       return <h1>LOADING...</h1>
-    }
-
+  let editMainInfosElement = (<button id='edit-main-infos-btn'><img id='edit-main-infos-img' src={pen} width='20' height='20'></img></button>);
+  let editSecondaryInfosElement = (<button id='edit-secondary-infos-btn'><img id='edit-secondary-infos-img' src={pen} width='20' height='20'></img></button>);
+  
+  if(profile.userId !== sessionStorage.getItem("userId")){
+    editMainInfosElement = (<></>);
+    editSecondaryInfosElement = (<></>);
+  }
     let postsElement = (        
     <ul>
-      {posts.map((post) =>
+      {posts.slice(0).reverse().map((post) =>
         <li className='post' key={post._id}>
                     <div className='post-content'>
               <div>
@@ -55,15 +57,9 @@ export const Profile = () =>{
                   </div>
               </div>
               <div className='comments-section' id={'comments-'+post._id}>
-                    <Comments postId={post._id}/>
+                    <Comments id={post._id}/>
               </div>
             </div>
-          <div className='add-comment'>
-              <form onSubmit={(e) => handleSubmit(post._id,e)}>
-                  <input name='input' className='add-comment-input'></input>
-                  <button className='add-comment-button'>post</button>
-              </form>
-          </div>
         </li>)}
     </ul>
     )
@@ -74,14 +70,20 @@ export const Profile = () =>{
     return (
     <div>
       <div className='profile-frame'>
-        <div className='main-infos'>
-          <div id='firstname-lastname'>
+        <div id='main-infos'>
+          <div>
             <h2>{profile.firstname} {profile.lastname}</h2>
           </div>
-          <p>{profile.description}</p>
+            {editMainInfosElement}        
         </div>
-        <div id='picture-frame'>
-          <img id="profile-picture" src={profile.pictureUrl}></img>
+        <div id='secondary-infos'>
+          <div id='picture-frame'>
+            <img id="profile-picture" src={profile.pictureUrl}></img>
+          </div>
+          <div id='description'>
+            <h3>{profile.description}</h3>
+          </div>
+            {editSecondaryInfosElement}        
         </div>
       </div>
       <div id='posts-frame'>
@@ -91,7 +93,7 @@ export const Profile = () =>{
         )
 }
 
-function handleClick(id,e) {
+const handleClick = (id,e) => {
   e.preventDefault();
   let x = document.getElementById("comments-"+id);
   if (x.style.display === "none") {
@@ -99,11 +101,4 @@ function handleClick(id,e) {
   } else {
       x.style.display = "none";
   }
-}
-
-function handleSubmit(postId,e) {
-  e.preventDefault()
-  let text = e.target['input'].value;
-  console.log(postId);
-  PostComment(postId,text);
 }
