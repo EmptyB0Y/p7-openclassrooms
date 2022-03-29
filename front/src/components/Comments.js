@@ -1,82 +1,86 @@
 import like from '../assets/Icons/like.png'
 import nopic from '../assets/Icons/nopic.webp'
 import { useState, useEffect, useRef, useCallback } from 'react'
-import {GetComments,PostComment,GetAuthorProfile} from '../services/comments.service'
+import {GetComments,PostComment} from '../services/comments.service'
+import {SearchProfiles} from '../services/profiles.service'
 
 export const Comments = (id) => {
     const [comments, setComments] = useState([]);
     const [change, setChange] = useState(false);
-    let authorProfiles = [];
+    const [load,setLoad] = useState(false);
+    const [profiles, setProfiles] = useState({});
 
+    let commentsElement = (<p>Loading...</p>);
+
+    const getFirstname = (userId) =>{
+        console.log(profiles[userId]);
+        if(profiles[userId] !== undefined){
+            return profiles[userId].firstname;
+        }
+        return("Loading...");
+    }
+
+    const getLastname = (userId) =>{
+        if(profiles[userId] !== undefined){
+            return profiles[userId].lastname;
+        }
+        return("");
+    }
+ 
     useEffect(() => {
         GetComments(id)
         .then(data => {
-            console.log(data);
             setComments(data);
-            for(let i = 0; i< comments.length; i++){
-                GetAuthorProfile(i.author)
-                .then((profile)=>{
-                    authorProfiles[i.author] = profile;
-                    console.log(profile);
-                })
-            }
-            console.log(authorProfiles);
         })
         .catch((err) => console.log(err)) 
-      }, [])
+      }, [change]);
 
-    const getProfile = (author) =>{
-        /*GetAuthorProfile(author).then((profile)=>{
-            profiles.push(profile);
-            return profile.firstname;
-        }).catch(()=>{return 'Loading'});*/
-    }
+      useEffect(() => {
+        let authorUserIds = []
+        for(let i = 0; i < comments.length; i++){
+            if(!(authorUserIds.includes(comments[i].author))){
+                authorUserIds.push(comments[i].author);
+            }
+        }
 
-    let commentsElement = (
-        <ul>
-        {comments.map((comment) =>
-            <li className='comment' key={comment._id}>
-                <img className='comment-profile-picture' src={nopic}></img>
-                <div>
-                    <p><a href='#' id='comment-author'>{comment.author}</a>~
-                    {comment.text}
-                    </p>
-                </div>
-            </li>)}
-        </ul>
-        );
+        SearchProfiles(authorUserIds)
+        .then(data => {
+            setProfiles(data);
+            if(comments.length > 0){
+                setLoad(true);
+            }       
+         })
+        .catch((err) => console.log(err));
+      }, [comments]);
 
-    if(change){
-        setChange(false);
-
-        return (
-        <ul>
-        {comments.map((comment) =>
-            <li className='comment' key={comment._id}>
-                <img className='comment-profile-picture' src={nopic}></img>
-                <div>
-                    <p>{comment.author}~
-                    {comment.text}
-                    </p>
-                </div>
-            </li>)}
-        </ul>
+    if(load){
+        commentsElement = (
+            <ul>
+            {comments.map((comment) =>
+                <li className='comment' key={comment._id}>
+                    <img className='comment-profile-picture' src={nopic}></img>
+                    <div>
+                        <p><a href='#' id='comment-author'>{getFirstname(comment.author)} {getLastname(comment.author)}</a>~
+                        {comment.text}
+                        </p>
+                    </div>
+                </li>)}
+            </ul>
         );
     }
+
 
     if(comments.length === 0){
         commentsElement = (<p>No comments yet...</p>);
     }
     const refresh = () => {
         setChange(true);
-        GetComments(id).then((data) =>{
-            setComments(data);
-        });
       }
 
     const handleSubmit = (e) => {
         e.preventDefault();
         let text = e.target['input'].value; 
+        e.target['input'].value = "";
         PostComment(id.id,text)
         .then(() => { refresh()});
     }

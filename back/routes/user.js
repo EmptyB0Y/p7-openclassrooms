@@ -12,6 +12,8 @@ router.delete('/delete', auth, userCtrl.delete);
 router.get('/admin/users', auth, userCtrl.getAllUsers);
 router.get('/admin/users/:id', auth, userCtrl.getOneUser);
 router.get('/profile', auth, userCtrl.getProfile);
-router.get('/profile/:id', auth, userCtrl.getProfile);
+router.get('/profiles/:id', auth, userCtrl.getOneProfile);
+router.get('/profiles/', userCtrl.getAllProfiles);
+router.post('/profiles/search', userCtrl.searchProfiles)
 
 module.exports = router;

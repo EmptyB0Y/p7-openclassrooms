@@ -7,7 +7,7 @@ const auth = require('../middlewares/auth');
 const upload = require('../middlewares/upload');
 
 router.get('/posts', auth, postCtrl.getAllPosts);
-router.get('/profile/:id/posts', auth, postCtrl.getAllPostsFromUser);
+router.get('/profiles/:id/posts', auth, postCtrl.getAllPostsFromUser);
 router.get('/posts/:id', auth, postCtrl.getOnePost);
 router.post('/posts', auth, upload, postCtrl.postPost);
 router.put('/posts/:id', auth, upload, postCtrl.editPost);

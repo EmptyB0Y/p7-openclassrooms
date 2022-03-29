@@ -19,7 +19,7 @@ const apiRequestLimiter = expressRateLimit({
 });
 
 //Limit requests
-app.use(apiRequestLimiter);
+//app.use(apiRequestLimiter);
 
 //Allow CORS request
 app.use(cors({

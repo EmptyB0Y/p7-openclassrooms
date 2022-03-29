@@ -192,7 +192,7 @@ exports.getProfile = (req, res) =>{
   .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
 }
 
-exports.getUserProfile = (req, res) =>{
+exports.getOneProfile = (req, res) =>{
 
   mongoose.connect(getAuth(),
   { useNewUrlParser: true,
@@ -204,6 +204,54 @@ exports.getUserProfile = (req, res) =>{
         res.status(200).json(ProfileFound)
       })
       .catch(() => res.status(404).json({message: 'Not found !'}));
+  })
+  .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
+}
+
+exports.getAllProfiles = (req,res) =>{
+  mongoose.connect(getAuth(),
+  { useNewUrlParser: true,
+  useUnifiedTopology: true })
+  .then(() =>{
+        Profile.find()
+        .then(Profiles => res.status(200).json(Profiles))
+        .catch(error => res.status(400).json({ error }));
+    })
+      .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
+}
+
+exports.searchProfiles = (req, res) =>{
+
+  if(!req.body.profiles){
+    return res.status(400).send(new Error('Bad request!'));
+  }
+
+  const profilesSearch = req.body.profiles;
+  mongoose.connect(getAuth(),
+  { useNewUrlParser: true,
+  useUnifiedTopology: true })
+  .then(() =>{
+      Profile.find()
+      .then((profiles) => {
+        let profilesFound = {};
+          for(let j = 0; j < profilesSearch.length; j++){
+            for(let i = 0; i < profiles.length; i++){
+
+            if(String(profilesSearch[j]) === String(profiles[i].userId)){
+              profilesFound[profiles[i].userId] = profiles[i];
+              /*console.log(profiles[i])
+              console.log(profilesSearch.length);
+              if(profilesFound.length < profilesSearch.length){
+                i = 0;
+                j++;
+              }*/
+            }
+          }
+        }
+        res.status(200).json(profilesFound);
+
+      })
+      .catch((e) => res.status(404).json({message: 'Not found !', error: e}));
   })
   .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
 }
