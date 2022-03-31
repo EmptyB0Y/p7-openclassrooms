@@ -1,14 +1,21 @@
-#addpost-arrow-submit{
-    height: 50px;
-    width: 50px;
+#addpost-frame{
+    margin-left: 50px;
 }
 #addpost-form{
     margin-top: 50px;
-    margin-left: 70px;
+    margin-right: auto;
     display: flex;
     align-items: center;
+    flex-direction: column;
+}
+
+#addpost-submit{
+    margin-right: auto;
 }
 #addpost-input{
-    height: 50px;
     width: 500px;
+    height: auto;
+    margin-right: auto;
+    padding-bottom: 20px;
+    border: 1px solid grey;
 }

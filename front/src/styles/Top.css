@@ -26,3 +26,17 @@
     width: 10px;
     height: 10px;
 }
+
+#search-list{
+    list-style: none;
+    border: none;
+}
+
+#search-form:hover #search-list{
+    border: 1px solid grey;
+    border-top: none;
+}
+
+.searchbar{
+    margin-left: 50px;
+}

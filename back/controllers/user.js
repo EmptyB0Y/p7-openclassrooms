@@ -176,22 +176,6 @@ exports.getOneUser = (req, res) => {
 };
 //ADMIN
 
-exports.getProfile = (req, res) =>{
-  mongoose.connect(getAuth(),
-  { useNewUrlParser: true,
-  useUnifiedTopology: true })
-  .then(() =>{
-    Profile.findOne({userId : res.locals.userId})
-    .then((ProfileFound) => {
-      console.log(ProfileFound);
-      res.status(200).json(ProfileFound)
-    })
-    .catch(() => res.status(404).json({message: 'Not found !'}));
-
-  })
-  .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
-}
-
 exports.getOneProfile = (req, res) =>{
 
   mongoose.connect(getAuth(),
@@ -239,16 +223,35 @@ exports.searchProfiles = (req, res) =>{
 
             if(String(profilesSearch[j]) === String(profiles[i].userId)){
               profilesFound[profiles[i].userId] = profiles[i];
-              /*console.log(profiles[i])
-              console.log(profilesSearch.length);
-              if(profilesFound.length < profilesSearch.length){
-                i = 0;
-                j++;
-              }*/
             }
           }
         }
         res.status(200).json(profilesFound);
+
+      })
+      .catch((e) => res.status(404).json({message: 'Not found !', error: e}));
+  })
+  .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
+}
+
+exports.textSearchProfile = (req, res) =>{
+
+  if(!req.body.query){
+    return res.status(400).send(new Error('Bad request!'));
+  }
+
+  mongoose.connect(getAuth(),
+  { useNewUrlParser: true,
+  useUnifiedTopology: true })
+  .then(() =>{
+    let q = req.body.query;
+    let query = {
+      "$or": [{firstname: {"$regex": q, "$options": "i"}}, {lastname: {"$regex": q, "$options": "i"}}]
+    };
+      Profile.find(query)
+      .then((profiles) => {
+
+        res.status(200).json(profiles);
 
       })
       .catch((e) => res.status(404).json({message: 'Not found !', error: e}));

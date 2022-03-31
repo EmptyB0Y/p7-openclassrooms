@@ -1,3 +1,6 @@
+#root{
+    min-width: 475px;
+}
 .profile-frame{
     margin-left: 20px;
 }
@@ -12,7 +15,7 @@
 }
 
 #secondary-infos{
-    width: 700px;
+    width: 95%;
     display: flex;
     flex-direction: row;
     justify-content: space-between;

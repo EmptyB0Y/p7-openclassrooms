@@ -47,3 +47,21 @@ export const SearchProfiles = (profiles) => {
         })
       .catch((err) => err);
 }
+
+export const TextSearchProfiles = (query) => {
+
+  const options = {
+        headers: { Authorization: 'Bearer '+sessionStorage.getItem("token") }
+    };
+
+    const bodyParameters = {
+      userId : sessionStorage.getItem("userId"),
+      query: query
+  };
+
+    return axios.post(BASE_URL + 'profiles/textsearch',bodyParameters,options)
+      .then((res) =>{
+        return res.data;
+        })
+      .catch((err) => err);
+}

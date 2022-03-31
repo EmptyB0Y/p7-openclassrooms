@@ -10,6 +10,11 @@ import {Comments} from './Comments'
 export const Profile = (userId) =>{
     const [profile, setProfileInfos] = useState([]);
     const [posts, setProfilePosts] = useState([]);
+    const [iterations, setIterations] = useState(10);
+
+    const handleClickLoadMore = () => {
+      setIterations((iterations+5));
+    }
 
       useEffect(() => {
         GetProfile(userId)
@@ -32,11 +37,11 @@ export const Profile = (userId) =>{
   }
     let postsElement = (        
     <ul>
-      {posts.slice(0).reverse().map((post) =>
+      {posts.slice(0,iterations).reverse().map((post) =>
         <li className='post' key={post._id}>
-                    <div className='post-content'>
+            <div className='post-content'>
               <div>
-                  <p>{post.userId}</p>
+                  <p>{profile.firstname} {profile.lastname}</p>
               </div>
               <div>
                   <p>{post.content}</p>
@@ -67,6 +72,11 @@ export const Profile = (userId) =>{
       postsElement = <h1>No posts yet</h1>
     }
 
+    let loadElement = (<div></div>);
+    if(iterations < posts.length){
+        loadElement = (<div id="load-more" onClick={handleClickLoadMore}>LOAD MORE POSTS</div>);
+    }
+
     return (
     <div>
       <div className='profile-frame'>
@@ -87,9 +97,14 @@ export const Profile = (userId) =>{
         </div>
       </div>
       <div id='posts-frame'>
-        {postsElement}
+            <div className='posts-padding'>
+                <div className='posts-content'>
+                    {postsElement}
+                </div>
+            </div>
+            {loadElement}
+        </div>
       </div>
-    </div>
         )
 }
 
