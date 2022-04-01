@@ -1,4 +1,6 @@
 import { TextSearchProfiles } from "../services/profiles.service";
+import {Profile} from "./Profile";
+import {Top} from "./Top";
 import ReactDOM from 'react-dom';
 
 export const Searchbar = () =>{
@@ -13,6 +15,16 @@ export const Searchbar = () =>{
     </div>
         )
 
+    function handleClick(profileId){
+        ReactDOM.render(
+            <div>
+                <Top />
+                <Profile id={profileId} />
+            </div>,
+              document.getElementById('root')
+        );
+    }
+
     function handleKeyUp(e){
         e.preventDefault();
         if(e.target.value !== ''){
@@ -21,7 +33,7 @@ export const Searchbar = () =>{
             <ul id='search-list'>
                 {profiles.map((profile) => 
                 <li key={profile.userId}>
-                    {profile.firstname}
+                    <a href='#' onClick={()=>{handleClick(profile.userId)}}>{profile.firstname} {profile.lastname}</a>
                 </li>)}
             </ul>,
             document.getElementById("search-results"));

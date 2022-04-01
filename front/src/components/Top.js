@@ -13,11 +13,12 @@ export const Top = () =>{
         <div className='options'>
             <a href="#" className="options-button"><img src={options} alt="options" className="options-icon"></img></a>
             <div>
-            <Searchbar />
+                <Searchbar />
             </div>
         </div>
         <div className="navbar">
             <a href="#" onClick={(e) => handleClickProfile(e)}>PROFILE</a>
+            <a href="#" onClick={(e)=>handleClickHome(e)}>HOME</a>
             <a href="#" onClick={handleClickLogout} >LOG OUT</a>
         </div>
     </div>
@@ -34,9 +35,15 @@ function handleClickProfile(e){
     setTimeout(() => {
         ReactDOM.render(
             <div>
-                <div className="top"> 
+            <div className="top"> 
+                <div className='options'>
                     <a href="#" className="options-button"><img src={options} alt="options" className="options-icon"></img></a>
+                    <div>
+                        <Searchbar />
+                    </div>
+                </div>
                     <div className="navbar">
+                        <a href="#" onClick={(e) => handleClickProfile(e)}>PROFILE</a>
                         <a href="#" onClick={(e)=>handleClickHome(e)}>HOME</a>
                         <a href="#" onClick={handleClickLogout} >LOG OUT</a>
                     </div>

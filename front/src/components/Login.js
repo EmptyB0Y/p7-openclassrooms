@@ -13,7 +13,7 @@ export const Login = () => {
                     <p>E-mail address :</p>
                     <input name='email-input'></input>
                     <p>Password :</p>
-                    <input name='password-input'></input>
+                    <input name='password-input' type='password'></input>
                     <button name='submit'><img id='arrow-submit' src={arrow}></img></button>
                 </form>
                 <p>Not registered yet ? : <a href='#' onClick={handleClick}>Sign up</a></p>

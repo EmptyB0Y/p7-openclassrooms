@@ -27,3 +27,16 @@ export const PostComment = (postId,comment) =>{
         .catch((err) => err)
     }
 }
+
+export const DelComment = (commentId) =>{
+
+    return axios.delete(BASE_URL + 'comments/'+commentId+"",{
+        headers: { Authorization: 'Bearer '+sessionStorage.getItem("token") },
+        data:{
+            userId : sessionStorage.getItem("userId")
+        }
+
+    })
+    .then((res) => console.log(res.data))
+    .catch((err) => err)
+}

@@ -1,7 +1,6 @@
-import like from '../assets/Icons/like.png'
-import nopic from '../assets/Icons/nopic.webp'
+import Trash from '../assets/Icons/Trash.webp'
 import { useState, useEffect, useRef, useCallback } from 'react'
-import {GetComments,PostComment} from '../services/comments.service'
+import {DelComment, GetComments,PostComment} from '../services/comments.service'
 import {SearchProfiles} from '../services/profiles.service'
 import {Profile} from './Profile'
 import { Top } from './Top'
@@ -29,8 +28,22 @@ export const Comments = (id) => {
         return("");
     }
 
+    const getProfilePic = (userId) =>{
+        if(profiles[userId] !== undefined){
+            return profiles[userId].pictureUrl;
+        }
+        return("");
+    }
+
+    const getAccess = (userId) =>{
+        if(profiles[userId] !== undefined){
+            return profiles[userId].access;
+        }
+        return("none");
+    }
+
     const refresh = () => {
-        setChange(true);
+        setChange(!change);
       }
 
     const handleSubmit = (e) => {
@@ -59,6 +72,15 @@ export const Comments = (id) => {
           }, 100);
 
     }
+    const handleClickDelete = (e) => {
+        let commentId = ReactDOM.findDOMNode(e.target).parentNode.id;
+        if(commentId === ''){
+            commentId = ReactDOM.findDOMNode(e.target).parentNode.parentNode.id
+        }
+        DelComment(commentId)
+        .then(()=>{ refresh() });
+    }
+
     useEffect(() => {
         GetComments(id)
         .then(data => {
@@ -74,6 +96,7 @@ export const Comments = (id) => {
                 authorUserIds.push(comments[i].author);
             }
         }
+        authorUserIds.push(sessionStorage.getItem("userId"));
 
         SearchProfiles(authorUserIds)
         .then(data => {
@@ -84,18 +107,26 @@ export const Comments = (id) => {
          })
         .catch((err) => console.log(err));
       }, [comments]);
-
+    
     if(load){
+        let deleteCommentElement = {};
+        deleteCommentElement[sessionStorage.getItem("userId")] = (<button className='delete-comment' onClick={(e) => handleClickDelete(e)}><img className='delete-comment-icon' src={Trash} width='10' height='10'></img></button>);
+        if(getAccess(sessionStorage.getItem("userId")) === "admin"){
+            for(let i = 0;i < comments.length; i++){
+                deleteCommentElement[comments[i].author] = deleteCommentElement[sessionStorage.getItem("userId")];
+            }
+        }
+
         commentsElement = (
             <ul>
             {comments.map((comment) =>
-                <li className='comment' key={comment._id}>
-                    <img className='comment-profile-picture' src={nopic}></img>
-                    <div>
-                        <a href='#' className='comment-author' onClick={(e) => handleClick(e,comment.author)}><p className='firstname'>{getFirstname(comment.author)}</p><p className='lasttname'> {getLastname(comment.author)}</p></a>~
+                <li className='comment' key={comment._id} id={comment._id}>
+                    <img className='comment-profile-picture' src={getProfilePic(comment.author)}></img>
+                    <div className='comment-content'>
+                        <a href='#' className='comment-author' onClick={(e) => handleClick(e,comment.author)}>{getFirstname(comment.author)} {getLastname(comment.author)}</a>~
                         {comment.text}
-                        
                     </div>
+                    {deleteCommentElement[comment.author]}
                 </li>)}
             </ul>
         );

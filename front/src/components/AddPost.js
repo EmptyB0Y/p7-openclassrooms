@@ -4,34 +4,42 @@ import { useState } from 'react'
 
 export const AddPost = () => {
 
-    const [margin,setMargin] = useState(60);
+    const [margin,setMargin] = useState(80);
+    const [publish,setPublish] = useState(false);
 
-    function handleInput(e){
+
+    function handleInput(){
         let element = document.getElementById("addpost-frame");
-        if(e.nativeEvent.inputType === "insertParagraph"){
-            setMargin(margin+5);
+        let input = document.getElementById("addpost-input");
+        let j = 80;
+        for(let i = 0; i < input.innerText.length; i++){
+            console.log(input.innerText.charAt(i));
+            if(input.innerText.charAt(i) === '\n'){
+                j += 10;
+            }
         }
-        else if(e.nativeEvent.inputType === "deleteContentBackward" && margin > 80){
-            setMargin(margin-5);
-        }
+        setMargin(j);
+        console.log(margin);
         element.style.height = margin+"px";
     }
     
     function handleClick(e){
         if(e.target.innerText === "What's on your mind ?"){
-            e.target.innerText = "";        
+            e.target.innerText = "";
+            setPublish(true);
         }
     }
     
-    function handleSubmit(e){
-        if(document.getElementById("addpost-input").innerText !== ''){
-            let text = e.target["addpost-input"].innerText;
+    function handleSubmit(){
+        if(document.getElementById("addpost-input").innerText !== '' && publish){
+            let text = document.getElementById("addpost-input").innerText;
             PostPost(text);
+            window.location.reload();
         }
     }
     
     return <div id="addpost-frame">
-        <form id='addpost-form' onSubmit={(e) => handleSubmit(e)} onClick={(e) => handleClick(e)} onInput={(e)=>handleInput(e)}>
+        <form id='addpost-form' onSubmit={() => handleSubmit()} onClick={(e) => handleClick(e)} onInput={()=>handleInput()}>
             <span contentEditable={true} role='textbox' id='addpost-input' name='addpost-input'>What's on your mind ?</span>
             <button id='addpost-submit' name='addpost-submit'>POST</button>
         </form>

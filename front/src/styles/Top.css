@@ -30,6 +30,16 @@
 #search-list{
     list-style: none;
     border: none;
+    padding: 0px;
+}
+
+#search-list a{
+    text-decoration: none;
+}
+
+#search-list li:hover{
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
 }
 
 #search-form:hover #search-list{
@@ -39,4 +49,5 @@
 
 .searchbar{
     margin-left: 50px;
+    margin-bottom: 50px;
 }

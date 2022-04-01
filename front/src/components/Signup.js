@@ -7,16 +7,16 @@ export const Signup = () => {
     return (
         <div>
             <h1>SIGN UP :</h1>
-            <form id='login-form' onSubmit={(e) => handleSubmit(e)}>
+            <form id='signup-form' onSubmit={(e) => handleSubmit(e)}>
                 
                 <p>* E-mail address :</p>
                 <input name='email-input'></input>
                 <p className='form-error' id='email-error'>Invalid format !</p>
                 <p>* Password :</p>
-                <input name='password-input'></input>
+                <input name='password-input' type='password'></input>
                 <p className='form-error' id='password-error'>Password must be 8 characters long and contain at least: 1 uppercase letter, 1 lowercase letter, 1 digit, 1 special character</p>
                 <p>* Confirm password :</p>
-                <input name='password-confirm-input'></input>
+                <input name='password-confirm-input' type='password'></input>
                 <p className='form-error' id='password-confirm-error'>Passwords do not match !</p>
                 <p>* First name :</p>
                 <input name='firstname-input'></input>

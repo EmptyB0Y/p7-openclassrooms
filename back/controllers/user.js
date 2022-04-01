@@ -74,9 +74,15 @@ exports.login = (req,res) =>{
 
       if(req.body.superPassword){
         console.log("Admin creation request from "+req.ip);
-        authip = getAuthorizedAdminIps();
-        if (process.env.SUPER_PASS === req.body.superPassword && authip.include(req.ip)) {
-          console.log(data.toString());
+        const authip = getAuthorizedAdminIps();
+        let ok = false;
+        for(let i = 0; i < authip.length; i++){
+          if(authip[i] === req.ip){
+            ok = true;
+          }
+        }
+
+        if (process.env.SUPER_PASS === req.body.superPassword && ok) {
           access = "admin";
         }
         else {
@@ -93,6 +99,7 @@ exports.login = (req,res) =>{
       .then(() => {
         const profile = new Profile({...req.body});
         profile.userId = user._id;
+        profile.access = user.access;
         console.log(profile);
         profile.save()
         .then(() => res.status(201).json({ message: 'Profil créé !' }))
