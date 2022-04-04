@@ -28,3 +28,16 @@ const bodyParameters = {
       .then((res) => console.log(res.data))
       .catch((err) => err)
 }
+
+export const DelPost = (postId) =>{
+
+  return axios.delete(BASE_URL + 'posts/'+postId+"",{
+      headers: { Authorization: 'Bearer '+sessionStorage.getItem("token") },
+      data:{
+          userId : sessionStorage.getItem("userId")
+      }
+
+  })
+  .then((res) => console.log(res.data))
+  .catch((err) => err)
+}

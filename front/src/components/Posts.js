@@ -1,10 +1,12 @@
 import '../styles/Posts.css'
 import like from '../assets/Icons/like.png'
 import dislike from '../assets/Icons/dislike.png'
+import Trash from '../assets/Icons/Trash.webp'
 import { useState, useEffect, useRef, useCallback } from 'react'
-import {GetPosts} from '../services/posts.service'
+import {GetPosts,DelPost} from '../services/posts.service'
 import {SearchProfiles} from '../services/profiles.service'
 import {Comments} from './Comments'
+import ReactDOM from 'react-dom'
 
 export const Posts = () => {
 
@@ -12,16 +14,37 @@ export const Posts = () => {
     const [load,setLoad] = useState(false);
     const [profiles, setProfiles] = useState({});
     const [iterations, setIterations] = useState(10);
+    const [change,setChange] = useState(false);
     
     const handleClickLoadMore = () => {
         setIterations((iterations+5));
+    }
+
+    const handleClickDelete = (e) => {
+        let postId = ReactDOM.findDOMNode(e.target).parentNode.id;
+        if(postId === ''){
+            postId = ReactDOM.findDOMNode(e.target).parentNode.parentNode.id
+        }
+
+        DelPost(postId)
+        .then(()=>{ refresh() });
+    }
+    const refresh = () => {
+        setChange(!change);
+    }
+
+    const getAccess = (userId) =>{
+        if(profiles[userId] !== undefined){
+            return profiles[userId].access;
+        }
+        return("none");
     }
 
       useEffect(() => {
         GetPosts()
         .then(data => setPosts(data))
         .catch((err) => console.log(err)) 
-      }, [])
+      }, [change])
 
       useEffect(() => {
         let authorUserIds = []
@@ -30,6 +53,7 @@ export const Posts = () => {
                 authorUserIds.push(posts[i].userId);
             }
         }
+        authorUserIds.push(sessionStorage.getItem("userId"));
 
         SearchProfiles(authorUserIds)
         .then(data => {
@@ -44,17 +68,27 @@ export const Posts = () => {
     let postsElement = (<div>"Loading..."</div>)
 
     if(load){
+        let deletePostElement = {};
+        deletePostElement[sessionStorage.getItem("userId")] = (<button className='delete-post' onClick={(e) => handleClickDelete(e)}><img className='delete-post-icon' src={Trash} width='10' height='10'></img></button>);
+        if(getAccess(sessionStorage.getItem("userId")) === "admin"){
+            for(let i = 0;i < posts.length; i++){
+                deletePostElement[posts[i].userId] = deletePostElement[sessionStorage.getItem("userId")];
+            }
+        }
         postsElement = (
             <ul>
               {posts.slice(0,iterations).reverse().map((post) =>
                 <li className='post' key={post._id}>
-                    <div className='post-content'>
-                      <div>
+                    <div className='post-title'>
+                        <div>
                           <p>{profiles[post.userId].firstname} {profiles[post.userId].lastname}</p>
+                        </div>
+                        <div id={post._id}>
+                          {deletePostElement[post.userId]}
+                        </div>
                       </div>
-                      <div>
-                          <p>{post.content}</p>
-                      </div>
+                    <div className='post-content'>
+                        <p>{post.content}</p>
                   </div>
                   <div className='post-reviews'>
                       <div className='post-reviews-row'>

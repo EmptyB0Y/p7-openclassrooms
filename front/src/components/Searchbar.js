@@ -18,11 +18,18 @@ export const Searchbar = () =>{
     function handleClick(profileId){
         ReactDOM.render(
             <div>
+            </div>,
+              document.getElementById('root')
+        );
+        setTimeout(() => {
+        ReactDOM.render(
+            <div>
                 <Top />
                 <Profile id={profileId} />
             </div>,
               document.getElementById('root')
         );
+        }, 100);
     }
 
     function handleKeyUp(e){

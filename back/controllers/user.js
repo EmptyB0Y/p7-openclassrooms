@@ -191,7 +191,8 @@ exports.getOneProfile = (req, res) =>{
   .then(() =>{
       Profile.findOne({userId : req.params.id})
       .then((ProfileFound) => {
-        console.log(ProfileFound);
+        console.log(req.params.id);
+        console.log("Profile found : " + ProfileFound);
         res.status(200).json(ProfileFound)
       })
       .catch(() => res.status(404).json({message: 'Not found !'}));
@@ -265,7 +266,73 @@ exports.textSearchProfile = (req, res) =>{
   })
   .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
 }
+exports.editProfile = (req, res) =>{
 
+  if((!req.body.firstname &&
+    !req.body.lastname &&
+    !req.body.description &&
+    !req.file) && !req.body.profile){
+    return res.status(400).send(new Error('Bad request!'));
+  }
+  let ProfileModified;
+
+  mongoose.connect(getAuth(),
+  { useNewUrlParser: true,
+  useUnifiedTopology: true })
+  .then(() =>{
+      Profile.findOne({userId : req.params.id})
+      .then((ProfileFound) => {
+        User.findOne({userId : res.locals.userId})
+        .then((UserFound) => {
+          if(ProfileFound.userId !== String(UserFound._id) && UserFound.access !== "admin"){
+            return res.status(403).json({message: 'Forbidden !'})
+          }
+
+          if(req.body.profile){
+            ProfileModified = req.body.profile;
+          }
+          else{
+            ProfileModified = {
+              "firstname" : ProfileFound.firstname,
+              "lastname" : ProfileFound.lastname,
+              "description" : ProfileFound.description,
+              "pictureUrl" : ProfileFound.pictureUrl,
+              "userId" : ProfileFound.userId,
+              "access" : ProfileFound.access,
+            };
+
+            if(req.body.firstname){
+              ProfileModified.firstname = req.body.firstname;
+            }
+            if(req.body.lastname){
+              ProfileModified.lastname = req.body.lastname;
+            }
+            if(req.body.description){
+              ProfileModified.description = req.body.description;
+            }
+          }
+          if(req.file){
+            if(ProfileModified.pictureUrl !== 'http://127.0.0.1:3000/images/default/nopic.webp'){
+              fs.unlink('../back/images/' + ProfileModified.pictureUrl.split('/images/')[1], (err) => {
+                if (err) {
+                  console.error(err)
+                }
+              })
+            }
+            ProfileModified.pictureUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+          }
+          Profile.updateOne({ _id: ProfileFound._id}, { ...ProfileModified, _id: ProfileFound._id })
+          .then(() => {
+            res.status(200).json({message: 'Objet modifié !'})
+          })
+          .catch(() => res.status(500).json({message: 'Erreur lors de l\'édition de l\'objet !'}));
+        })
+        .catch(() => res.status(404).json({message: 'Not found !'}));
+      })
+      .catch(() => res.status(404).json({message: 'Not found !'}));
+  })
+  .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
+}
 exports.getUserSchema = () =>{
   return User;
 }

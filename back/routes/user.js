@@ -13,6 +13,7 @@ router.get('/admin/users', auth, userCtrl.getAllUsers);
 router.get('/admin/users/:id', auth, userCtrl.getOneUser);
 router.get('/profiles/:id', auth, userCtrl.getOneProfile);
 router.get('/profiles/', userCtrl.getAllProfiles);
+router.put('/profiles/:id', auth, userCtrl.editProfile);
 router.post('/profiles/search', userCtrl.searchProfiles);
 router.post('/profiles/textsearch', userCtrl.textSearchProfile);
 

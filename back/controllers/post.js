@@ -137,7 +137,7 @@ exports.getAllPosts = (req,res) =>{
         PostModified.usersDisliked || 
         PostModified.usersLiked || 
         PostModified.comments){
-          return res.status(401).send(new Error('Unauthorized!'));
+          return res.status(403).send(new Error('Forbidden !'));
         }
     }
     if(req.file){

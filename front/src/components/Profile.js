@@ -6,11 +6,16 @@ import pen from '../assets/Icons/pen.webp'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import {GetProfile,GetProfilePosts} from '../services/profiles.service'
 import {Comments} from './Comments'
+import {EditMainInfos} from './EditMainInfos'
+import {EditSecondaryInfos} from './EditSecondaryInfos'
 
 export const Profile = (userId) =>{
-    const [profile, setProfileInfos] = useState([]);
+    const [profile, setProfileInfos] = useState({});
+    const [viewingProfile, setViewingProfile] = useState({});
     const [posts, setProfilePosts] = useState([]);
     const [iterations, setIterations] = useState(10);
+    const [load, setLoad] = useState(false);
+
 
     const handleClickLoadMore = () => {
       setIterations((iterations+5));
@@ -19,8 +24,20 @@ export const Profile = (userId) =>{
       useEffect(() => {
         GetProfile(userId)
         .then(data => setProfileInfos(data))
-        .catch((err) => console.log(err)) 
+        .catch((err) => console.log(err))
       }, [])
+
+      useEffect(() => {
+        GetProfile({id : sessionStorage.getItem("userId")})
+          .then(data => setViewingProfile(data))
+          .catch((err) => console.log(err))  
+      }, [])
+
+      useEffect(() => {
+        if(viewingProfile !== undefined && profile !== undefined){
+          setLoad(true);
+        }
+      }, [viewingProfile,profile])
 
       useEffect(() => {
         GetProfilePosts(userId)
@@ -28,13 +45,16 @@ export const Profile = (userId) =>{
         .catch((err) => console.log(err)) 
       }, [])
 
-  let editMainInfosElement = (<button id='edit-main-infos-btn'><img id='edit-main-infos-img' src={pen} width='20' height='20'></img></button>);
-  let editSecondaryInfosElement = (<button id='edit-secondary-infos-btn'><img id='edit-secondary-infos-img' src={pen} width='20' height='20'></img></button>);
-  
-  if(profile.userId !== sessionStorage.getItem("userId")){
-    editMainInfosElement = (<></>);
-    editSecondaryInfosElement = (<></>);
-  }
+      let editMainInfosElement = (<></>);
+      let editSecondaryInfosElement = (<></>);
+
+    if(load){
+      if(profile.userId === sessionStorage.getItem("userId") || viewingProfile.access === "admin"){
+        editMainInfosElement = <EditMainInfos profile={profile}/>;
+        editSecondaryInfosElement = <EditSecondaryInfos profile={profile}/>;
+        
+      }
+    }
     let postsElement = (        
     <ul>
       {posts.slice(0,iterations).reverse().map((post) =>
@@ -81,17 +101,11 @@ export const Profile = (userId) =>{
     <div>
       <div className='profile-frame'>
         <div id='main-infos'>
-          <div>
-            <h2>{profile.firstname} {profile.lastname}</h2>
-          </div>
             {editMainInfosElement}        
         </div>
         <div id='secondary-infos'>
           <div id='picture-frame'>
             <img id="profile-picture" src={profile.pictureUrl}></img>
-          </div>
-          <div id='description'>
-            <h3>{profile.description}</h3>
           </div>
             {editSecondaryInfosElement}        
         </div>

@@ -1,3 +1,7 @@
+#absolute{
+    position: absolute;
+    width: 100%;
+}
 .navbar{
     margin-left: auto;
     padding: 10px;
@@ -21,10 +25,31 @@
     height: 35px;   
     padding: 10px;
 }
-
-.options-button{
+#options{
+    width: 350px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+#options-button{
     width: 10px;
     height: 10px;
+}
+#options-anchor{
+    width: 10px;
+    height: 10px;
+}
+#options-anchor:hover #options-padding{
+    animation: slide 1s forwards;
+}
+
+#options-padding{
+    position: absolute;
+    left: -500px;
+    width: 500px;
+    height: 100%;
+    background-color: gray;
+    opacity: 0.5;
 }
 
 #search-list{
@@ -48,6 +73,10 @@
 }
 
 .searchbar{
-    margin-left: 50px;
-    margin-bottom: 50px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+@keyframes slide {
+    100% {left: 0px;}
 }

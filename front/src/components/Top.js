@@ -10,11 +10,13 @@ import ReactDOM from 'react-dom';
 export const Top = () =>{
     return (
     <div className="top">
-        <div className='options'>
-            <a href="#" className="options-button"><img src={options} alt="options" className="options-icon"></img></a>
-            <div>
-                <Searchbar />
+        <div id='options'>
+            <div id='options-anchor'>
+                <div id='options-padding'>
+                </div>
+                <a href="#" id="options-button"><img src={options} alt="options" className="options-icon"></img></a>
             </div>
+            <Searchbar />
         </div>
         <div className="navbar">
             <a href="#" onClick={(e) => handleClickProfile(e)}>PROFILE</a>
@@ -35,13 +37,15 @@ function handleClickProfile(e){
     setTimeout(() => {
         ReactDOM.render(
             <div>
-            <div className="top"> 
-                <div className='options'>
-                    <a href="#" className="options-button"><img src={options} alt="options" className="options-icon"></img></a>
-                    <div>
+                <div className="top"> 
+                    <div id='options'>
+                        <div id='options-anchor'>
+                            <div id='options-padding'>
+                            </div>
+                            <a href="#" id="options-button"><img src={options} alt="options" className="options-icon"></img></a>
+                        </div>                                                     
                         <Searchbar />
                     </div>
-                </div>
                     <div className="navbar">
                         <a href="#" onClick={(e) => handleClickProfile(e)}>PROFILE</a>
                         <a href="#" onClick={(e)=>handleClickHome(e)}>HOME</a>
@@ -64,7 +68,19 @@ function handleClickLogout() {
 function handleClickHome(e) {
     e.preventDefault();
     ReactDOM.render(
-        <div><Banner /><Top /><div><AddPost /><Posts /></div></div>,
+        <div>
+            <div><Banner /><Top /></div>
+            <div><AddPost /><Posts /></div>
+        </div>,
         document.getElementById('root')
     );
+}
+
+function handleClickOptions(e){
+    e.preventDefault();
+    ReactDOM.render(<div id='options-padding'></div>,document.getElementById("options-anchor"));
+}
+
+function handleLeaveOptions(){
+    ReactDOM.render(<div></div>,document.getElementById("options-anchor"));
 }

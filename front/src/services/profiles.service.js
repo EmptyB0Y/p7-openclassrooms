@@ -7,7 +7,7 @@ export const GetProfile = (userId) => {
   const options = {
         headers: { Authorization: 'Bearer '+sessionStorage.getItem("token") }
     };
-    console.log(userId);
+    console.log("User id : " + userId);
     return axios.get(BASE_URL + 'profiles/'+userId.id,options)
       .then((res) =>{
         console.log(res.data);
@@ -60,6 +60,24 @@ export const TextSearchProfiles = (query) => {
   };
 
     return axios.post(BASE_URL + 'profiles/textsearch',bodyParameters,options)
+      .then((res) =>{
+        return res.data;
+        })
+      .catch((err) => err);
+}
+
+export const EditProfile = (profile) => {
+
+  const options = {
+        headers: { Authorization: 'Bearer '+sessionStorage.getItem("token") }
+    };
+
+    const bodyParameters = {
+      userId : sessionStorage.getItem("userId"),
+      profile: profile
+  };
+
+    return axios.put(BASE_URL + 'profiles/'+profile.userId,bodyParameters,options)
       .then((res) =>{
         return res.data;
         })
