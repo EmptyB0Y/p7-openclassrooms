@@ -5,16 +5,18 @@ import { useEffect, useState } from 'react'
 
 export const EditSecondaryInfos = (profile) =>{
     const [state,setState] = useState(<div></div>);
-    const [description,setDescription] = useState(profile.profile.description)
 
     useEffect(()=>{
-
+        let editElement = <div></div>;
+        if(profile.profile.canEdit){
+            editElement = (<button id='edit-main-infos-btn' onClick={() => handleClickSecondaryInfos()}><img id='edit-main-infos-img' src={pen} width='20' height='20'></img></button>);
+        }
         setState( 
         <div>
             <div id='description'>
                 <h3>{profile.profile.description}</h3>
           </div>
-            <button id='edit-secondary-infos-btn' onClick={() => handleClickSecondaryInfos()}><img id='edit-secondary-infos-img' src={pen} width='20' height='20'></img></button>
+            {editElement}
         </div>)
     }, []);
 
@@ -44,13 +46,13 @@ export const EditSecondaryInfos = (profile) =>{
         });
       }
 
-      const handleChange = (e) => {
+      /*const handleChange = (e) => {
         if(description.length > 256){
             e.stopPropagation();
             document.getElementById("set-description").value = description;
         }
         setDescription(document.getElementById("set-description").value);
-      }
+      }*/
 
     return state;
 }

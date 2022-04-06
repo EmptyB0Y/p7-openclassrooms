@@ -18,7 +18,12 @@ export const Profile = (userId) =>{
 
 
     const handleClickLoadMore = () => {
-      setIterations((iterations+5));
+      if((iterations+5 > posts.length)){
+        setIterations(posts.length);
+      }
+      else{
+        setIterations((iterations+5));
+      }
     }
 
       useEffect(() => {
@@ -45,14 +50,19 @@ export const Profile = (userId) =>{
         .catch((err) => console.log(err)) 
       }, [])
 
-      let editMainInfosElement = (<></>);
-      let editSecondaryInfosElement = (<></>);
-
-    if(load){
-      if(profile.userId === sessionStorage.getItem("userId") || viewingProfile.access === "admin"){
-        editMainInfosElement = <EditMainInfos profile={profile}/>;
-        editSecondaryInfosElement = <EditSecondaryInfos profile={profile}/>;
-        
+      let editMainInfosElement = <></>;
+      let editSecondaryInfosElement = <></>;
+           
+      if(load && profile.firstname !== undefined){
+        let p = {...profile,canEdit : false};
+        editMainInfosElement = <EditMainInfos profile={p}/>;
+        editSecondaryInfosElement = <EditSecondaryInfos profile={p}/>;
+        if(profile.userId === sessionStorage.getItem("userId") || viewingProfile.access === "admin"){
+          p.canEdit = true
+          console.log(profile.userId);
+          console.log(sessionStorage.getItem("userId"));
+          editMainInfosElement = <EditMainInfos profile={p}/>;
+          editSecondaryInfosElement = <EditSecondaryInfos profile={p}/>;
       }
     }
     let postsElement = (        

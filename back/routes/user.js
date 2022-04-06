@@ -8,13 +8,15 @@ const testPassword = require('../middlewares/testPasswordStrength');
 
 router.post('/auth/signup', testEmail, testPassword, userCtrl.register);
 router.post('/auth/login', userCtrl.login);
-router.delete('/delete', auth, userCtrl.delete);
-router.get('/admin/users', auth, userCtrl.getAllUsers);
-router.get('/admin/users/:id', auth, userCtrl.getOneUser);
+router.get('/secure/users', auth, userCtrl.getAllUsers);
+router.get('/secure/users/:id', auth, userCtrl.getOneUser);
+router.put('/secure/users/:id/changePassword', auth, testPassword, userCtrl.editUserPassword);
+router.put('/secure/users/:id/changeEmail', auth,testEmail, userCtrl.editUserEmail);
+router.delete('/secure/users/:id/deleteUser', auth, userCtrl.deleteUser);
 router.get('/profiles/:id', auth, userCtrl.getOneProfile);
-router.get('/profiles/', userCtrl.getAllProfiles);
+router.get('/profiles/', auth, userCtrl.getAllProfiles);
 router.put('/profiles/:id', auth, userCtrl.editProfile);
-router.post('/profiles/search', userCtrl.searchProfiles);
-router.post('/profiles/textsearch', userCtrl.textSearchProfile);
+router.post('/profiles/search', auth, userCtrl.searchProfiles);
+router.post('/profiles/textsearch', auth, userCtrl.textSearchProfile);
 
 module.exports = router;

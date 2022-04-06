@@ -2,3 +2,7 @@
   position: absolute;
   width: 100%;
 }
+
+#root{
+  min-width: 585px;
+}

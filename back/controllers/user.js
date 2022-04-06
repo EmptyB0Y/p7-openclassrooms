@@ -113,32 +113,151 @@ exports.login = (req,res) =>{
 
   };
 
-exports.delete = (req, res) =>{
+exports.editUserEmail = (req, res) =>{
+  if (!req.body.newEmail) {
+    return res.status(400).send(new Error('Bad request!'));
+  }
+
+  mongoose.connect(getAuth(),
+  { useNewUrlParser: true, 
+  useUnifiedTopology: true })
+  .then(() =>{
+    User.findOne({_id : res.locals.userId})
+    .then((userEditing)=>{
+      User.findOne({_id : req.params.id})
+      .then((user) =>{
+        if(userEditing.access !== "admin" && String(user._id) !== res.locals.userId){
+          return res.status(403).json({message: "Forbidden !"});
+        }
+        let UserModified = {
+          email : req.body.newEmail,
+          password : user.password,
+          access : user.access,
+        };
+        User.updateOne({_id : user._id} ,{...UserModified,_id : user._id})
+          .then(() => res.status(200).json({ message: 'Utilisateur modifié !'}))
+          .catch(() => res.status(400).json({ message: 'Erreur lors de la modification de l\'utilisateur !' }));
+      })
+      .catch(() => res.status(404).json({message: 'Not found !'}));
+    })
+    .catch(() => res.status(404).json({message: 'Not found !'}));
+  })
+  .catch(() => {
+    return res.status(404).json({ message: "Connexion à MongoDB échouée !" });
+  });
+}
+
+exports.editUserPassword = (req, res) =>{
+  if (!req.body.oldPassword && !req.body.newPassword) {
+    return res.status(400).send(new Error('Bad request!'));
+  }
+
+  mongoose.connect(getAuth(),
+  { useNewUrlParser: true, 
+  useUnifiedTopology: true })
+  .then(() =>{
+    User.findOne({_id : res.locals.userId})
+    .then((userEditing)=>{
+      User.findOne({_id : req.params.id})
+      .then((user) =>{
+        if(userEditing.access !== "admin" && String(user._id) !== res.locals.userId){
+          return res.status(403).json({message: "Forbidden !"});
+        }
+          bcrypt.compare(req.body.oldPassword, user.password)
+          .then(valid => {
+            if (userEditing.access !== "admin" && !valid) {
+              return res.status(403).json({ message: 'Mot de passe incorrect !' });
+            }
+
+          bcrypt.hash(req.body.newPassword,10)
+          .then((hash)=>{
+          let UserModified = {
+            email : user.email,
+            password : hash,
+            access : user.access,
+          };
+          User.updateOne({_id : user._id} ,{...UserModified,_id : user._id})
+            .then(() => res.status(200).json({ message: 'Utilisateur modifié !'}))
+            .catch(() => res.status(500).json({ message: 'Erreur lors de la modification de l\'utilisateur !' }));
+          })
+
+        })
+        .catch(() => res.status(500).json({ message: 'Erreur lors du hashage du mot de passe !' }));
+      })
+      .catch(() => res.status(404).json({message: 'Not found !'}));
+    })
+    .catch(() => res.status(404).json({message: 'Not found !'}));
+  })
+  .catch(() => {
+    return res.status(404).json({ message: "Connexion à MongoDB échouée !" });
+  });
+};
+
+exports.deleteUser = (req, res) =>{
  
   mongoose.connect(getAuth(),
   { useNewUrlParser: true, 
   useUnifiedTopology: true })
   .then(() =>{
-      User.deleteOne({_id : req.body.userId})
-      .then(() => {
-        Profile.find((profiles) => {
-          for(let i = 0; i < profiles.length; i++){
-            if(profiles[i].userId === res.locals.userId){
-              Profile.deleteOne({_id: profiles[i]._id})
-              .then(() => {
-                  res.status(200).json({ message: 'Profil supprimé !'});
-              })
-              .catch(() => res.status(400).json({ message: 'Erreur lors de la deletion du profil !' }));
+    User.findOne({_id : res.locals.userId})
+    .then((userDeleting)=>{
+      User.findOne({_id : req.params.id})
+      .then((user) =>{
+        if(userDeleting.access !== "admin" && String(user._id) !== res.locals.userId){
+          return res.status(403).json({message: "Forbidden !"});
+        }
+        User.deleteOne({_id : req.body.userId})
+        .then(() => {
+          Profile.find((profiles) => {
+            for(let i = 0; i < profiles.length; i++){
+              if(profiles[i].userId === res.locals.userId){
+                Profile.deleteOne({_id: profiles[i]._id})
+                .then(() => {
+                    res.status(200).json({ message: 'Profil supprimé !'});
+                })
+                .catch(() => res.status(400).json({ message: 'Erreur lors de la deletion du profil !' }));
+              }
             }
-          }
+          })
+          .catch(() => res.status(404).json({message: 'Not found !'}));
         })
-        .catch(() => res.status(404).json({message: 'Not found !'}));
+        .catch(() => res.status(400).json({ message: 'Erreur lors de la deletion de l\'utilisateur !' }));
       })
-      .catch(() => res.status(400).json({ message: 'Erreur lors de la deletion de l\'utilisateur !' }));
+      .catch(() => res.status(404).json({message: 'Not found !'}));
+    })
+    .catch(() => res.status(404).json({message: 'Not found !'}));
   })
   .catch(() => {
     return res.status(404).json({ message: "Connexion à MongoDB échouée !" });
   });
+};
+
+exports.getOneUser = (req, res) => {
+  mongoose.connect(getAuth(),
+  { useNewUrlParser: true,
+  useUnifiedTopology: true })
+  .then(() =>{
+    User.findOne({_id : res.locals.userId})
+    .then((userRequesting)=>{
+      User.findOne({ _id: req.params.id })
+      .then(user => {
+        if(userRequesting.access === "admin" || String(user._id) === res.locals.userId){
+          User.findOne({ _id: req.params.id })
+          .then(user => res.status(200).json(user))
+          .catch(error => res.status(404).json({ error }));
+        }
+        else{
+          return res.status(403).json({message: "Forbidden !"});
+        }
+      })
+      .catch(() => res.status(404).json({message: 'Not found !'}));
+    })
+    .catch(() => res.status(404).json({message: 'Not found !'}));
+  })
+  
+  
+  
+  .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
 };
 
 //ADMIN
@@ -161,27 +280,6 @@ exports.getAllUsers = (req,res) =>{
   })
   .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
 };
-
-exports.getOneUser = (req, res) => {
-  mongoose.connect(getAuth(),
-  { useNewUrlParser: true,
-  useUnifiedTopology: true })
-  .then(() =>{
-    User.findOne({ _id: res.locals.userId })
-    .then(user => {
-      if(user.access === "admin"){
-        User.findOne({ _id: req.params.id })
-        .then(user => res.status(200).json(user))
-        .catch(error => res.status(404).json({ error }));
-      }
-      else{
-        return res.status(403).json({message: "Forbidden !"});
-      }
-    });
-  })  
-  .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
-};
-//ADMIN
 
 exports.getOneProfile = (req, res) =>{
 
