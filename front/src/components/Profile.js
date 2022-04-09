@@ -4,7 +4,7 @@ import like from '../assets/Icons/like.png'
 import dislike from '../assets/Icons/dislike.png'
 import pen from '../assets/Icons/pen.webp'
 import { useState, useEffect, useRef, useCallback } from 'react'
-import {GetProfile,GetProfilePosts} from '../services/profiles.service'
+import {GetProfile,GetProfilePosts, EditProfile} from '../services/profiles.service'
 import {Comments} from './Comments'
 import {EditMainInfos} from './EditMainInfos'
 import {EditSecondaryInfos} from './EditSecondaryInfos'
@@ -15,7 +15,12 @@ export const Profile = (userId) =>{
     const [posts, setProfilePosts] = useState([]);
     const [iterations, setIterations] = useState(10);
     const [load, setLoad] = useState(false);
+    const [formData,setFormData] = useState(null);
+    const [change, setChange] = useState(false);
 
+    const refresh = () => {
+      setChange(!change);
+    }
 
     const handleClickLoadMore = () => {
       if((iterations+5 > posts.length)){
@@ -26,44 +31,75 @@ export const Profile = (userId) =>{
       }
     }
 
-      useEffect(() => {
-        GetProfile(userId)
-        .then(data => setProfileInfos(data))
-        .catch((err) => console.log(err))
-      }, [])
+    const handleInput = (e) => {
+      const file = Array.from(e.target.files);
+      console.log("file: "+file[0].name);
+      if(file[0].name.endsWith(".jpg") || file[0].name.endsWith(".jpeg") || file[0].name.endsWith(".png")){
+        console.log("ok");
+        setFormData(file[0]);
+      }
+      else{
+      }
+    }
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      if(formData !== null){
+        console.log("form data : "+formData);
+        EditProfile(profile,formData)
+        .then((data) =>{
+          refresh();
+          console.log(data);
+        })
+      }
+    }
 
-      useEffect(() => {
-        GetProfile({id : sessionStorage.getItem("userId")})
-          .then(data => setViewingProfile(data))
-          .catch((err) => console.log(err))  
-      }, [])
+    useEffect(() => {
+      GetProfile(userId)
+      .then(data => setProfileInfos(data))
+      .catch((err) => console.log(err))
+    }, [change])
 
-      useEffect(() => {
-        if(viewingProfile !== undefined && profile !== undefined){
-          setLoad(true);
-        }
-      }, [viewingProfile,profile])
+    useEffect(() => {
+      GetProfile({id : sessionStorage.getItem("userId")})
+        .then(data => setViewingProfile(data))
+        .catch((err) => console.log(err))  
+    }, [])
 
-      useEffect(() => {
-        GetProfilePosts(userId)
-        .then(data => setProfilePosts(data))
-        .catch((err) => console.log(err)) 
-      }, [])
+    useEffect(() => {
+      if(viewingProfile !== undefined && profile !== undefined){
+        setLoad(true);
+      }
+    }, [viewingProfile,profile])
 
-      let editMainInfosElement = <></>;
-      let editSecondaryInfosElement = <></>;
-           
-      if(load && profile.firstname !== undefined){
-        let p = {...profile,canEdit : false};
+    useEffect(() => {
+      GetProfilePosts(userId)
+      .then(data => setProfilePosts(data))
+      .catch((err) => console.log(err)) 
+    }, [])
+
+    let editMainInfosElement = <></>;
+    let editSecondaryInfosElement = <></>;
+          
+    if(load && profile.firstname !== undefined){
+      let p = {...profile,canEdit : false};
+      editMainInfosElement = <EditMainInfos profile={p}/>;
+      editSecondaryInfosElement = <EditSecondaryInfos profile={p}/>;
+      if(profile.userId === sessionStorage.getItem("userId") || viewingProfile.access === "admin"){
+        p.canEdit = true
+        console.log(profile.userId);
+        console.log(sessionStorage.getItem("userId"));
         editMainInfosElement = <EditMainInfos profile={p}/>;
         editSecondaryInfosElement = <EditSecondaryInfos profile={p}/>;
-        if(profile.userId === sessionStorage.getItem("userId") || viewingProfile.access === "admin"){
-          p.canEdit = true
-          console.log(profile.userId);
-          console.log(sessionStorage.getItem("userId"));
-          editMainInfosElement = <EditMainInfos profile={p}/>;
-          editSecondaryInfosElement = <EditSecondaryInfos profile={p}/>;
       }
+    }
+
+    let  editProfilePictureElement = <></>;
+    if(profile.userId === sessionStorage.getItem("userId") || viewingProfile.access === "admin"){
+      editProfilePictureElement = (
+      <form onSubmit={(e) => handleSubmit(e)}>
+        <input type='file' id='upload' onInput={(e) => handleInput(e)} width='20' height='20' multiple />
+        <button>UPLOAD</button>
+      </form>);
     }
     let postsElement = (        
     <ul>
@@ -119,6 +155,7 @@ export const Profile = (userId) =>{
           </div>
             {editSecondaryInfosElement}        
         </div>
+          {editProfilePictureElement}
       </div>
       <div id='posts-frame'>
             <div className='posts-padding'>

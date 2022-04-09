@@ -23,7 +23,7 @@ export const EditSecondaryInfos = (profile) =>{
     const handleClickSecondaryInfos = () => {
         let editform = 
         <form id='edit-secondary-infos' onSubmit={(e) => handleSubmitSecondaryInfos(e)}>
-            <input id='set-description' name='set-description'></input>
+            <input type='text' id='set-description' name='set-description' defaultValue={profile.profile.description}></input>
             <button><img src={save} width='10' height='10'></img></button>
         </form>;
        setState(editform);

@@ -103,11 +103,11 @@ export const Account = () =>{
                 <h2>PASSWORD</h2>
                     <form id='password-change-form' onInput={handleInputPassword} onSubmit={(e) => handleSubmitPassword(e)}>
                         <p>Old password :</p>
-                        <input name='password-old-input'></input>
+                        <input type='password' name='password-old-input'></input>
                         <p>New password :</p>
-                        <input name='password-change-input'></input>
+                        <input type='password' name='password-change-input'></input>
                         <p>Confirm new password :</p>
-                        <input name='password-change-confirm'></input>
+                        <input type='password' name='password-change-confirm'></input>
                         <button>Change</button>
                         <p className='form-error' id='password-change-error'>Passwords do not macth !</p>
                         <p className='form-error' id='password-error'></p>
@@ -120,7 +120,7 @@ export const Account = () =>{
                 <h2>DELETE ACCOUNT</h2>
                     <p>Enter your password to delete your account : </p>
                     <form id='delete-form'>
-                        <input id='delete-form-password-input'></input>
+                        <input type='password' id='delete-form-password-input'></input>
                         <button id='delete-form-password-button'>DELETE</button>
                     </form>
                 </div>

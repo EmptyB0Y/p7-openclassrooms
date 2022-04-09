@@ -3,6 +3,7 @@ const Profile = require('../models/profile');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
 
 getAuth = () =>{
   return "mongodb+srv://"+String(process.env.DB_USERNAME)+":"+String(process.env.DB_USERPASS)+"@"+String(process.env.DB_CLUSTERNAME)+".ukoxa.mongodb.net/"+String(process.env.DB_NAME)+"?retryWrites=true&w=majority";
@@ -366,6 +367,8 @@ exports.textSearchProfile = (req, res) =>{
 }
 exports.editProfile = (req, res) =>{
 
+  console.log(req.body);
+
   if((!req.body.firstname &&
     !req.body.lastname &&
     !req.body.description &&
@@ -387,7 +390,9 @@ exports.editProfile = (req, res) =>{
           }
 
           if(req.body.profile){
-            ProfileModified = req.body.profile;
+            console.log("profile : "+JSON.parse(req.body.profile));
+            ProfileModified = JSON.parse(req.body.profile);
+            console.log("test");
           }
           else{
             ProfileModified = {
@@ -409,15 +414,20 @@ exports.editProfile = (req, res) =>{
               ProfileModified.description = req.body.description;
             }
           }
+
           if(req.file){
-            if(ProfileModified.pictureUrl !== 'http://127.0.0.1:3000/images/default/nopic.webp'){
-              fs.unlink('../back/images/' + ProfileModified.pictureUrl.split('/images/')[1], (err) => {
-                if (err) {
-                  console.error(err)
-                }
-              })
+            if(ProfileFound.pictureUrl !== 'http://127.0.0.1:3000/images/default/nopic.webp'){
+              if (fs.existsSync('./images/' + ProfileFound.pictureUrl.split('/images/')[1])) {
+                console.log('Deleting : ./images/' + ProfileFound.pictureUrl.split('/images/')[1]);
+                fs.unlink('./images/' + ProfileFound.pictureUrl.split('/images/')[1], (err) => {
+                  if (err) {
+                    console.error(err);
+                  }
+                })
+              }
             }
             ProfileModified.pictureUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+            console.log(ProfileModified);
           }
           Profile.updateOne({ _id: ProfileFound._id}, { ...ProfileModified, _id: ProfileFound._id })
           .then(() => {
@@ -425,9 +435,9 @@ exports.editProfile = (req, res) =>{
           })
           .catch(() => res.status(500).json({message: 'Erreur lors de l\'édition de l\'objet !'}));
         })
-        .catch(() => res.status(404).json({message: 'Not found !'}));
+        .catch(() => res.status(404).json({message: 'User not found !'}));
       })
-      .catch(() => res.status(404).json({message: 'Not found !'}));
+      .catch(() => res.status(404).json({message: 'Profile not found !'}));
   })
   .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
 }

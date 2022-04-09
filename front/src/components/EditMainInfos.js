@@ -25,27 +25,30 @@ export const EditMainInfos = (profile) =>{
     const handleClickMainInfos = () => {
         let editform = 
         <form id='edit-main-infos' onSubmit={(e) => handleSubmitMainInfos(e)}>
-            <input name='set-firstname'></input>
-            <input name='set-lastname'></input>
+            <input id='set-firstname' name='set-firstname' defaultValue={profile.profile.firstname}></input>
+            <input id='set-lastname'name='set-lastname' defaultValue={profile.profile.lastname}></input>
             <button><img src={save} width='10' height='10'></img></button>
         </form>;
        setState(editform);
+       //document.getElementById('set-firstname').defaultValue = profile.firstname;
+       //document.getElementById('set-lastname').defaultvalue = profile.lastname;
       }
 
 
     const handleSubmitMainInfos = (e) => {
         e.preventDefault();
         let ProfileModified = profile.profile;
+        delete ProfileModified.canEdit;
         ProfileModified.firstname = e.target['set-firstname'].value;
         ProfileModified.lastname = e.target['set-lastname'].value;
-        console.log(ProfileModified);
+
         EditProfile(ProfileModified)
         .then((data)=>{
             console.log(data);
             setState( 
             <div>
                 <div id='firstname-lastname'>
-                    <h2>{profile.firstname} {profile.lastname}</h2>
+                    <h2>{ProfileModified.firstname} {ProfileModified.lastname}</h2>
                 </div>
                 <button id='edit-main-infos-btn' onClick={() => handleClickMainInfos()}><img id='edit-main-infos-img' src={pen} width='20' height='20'></img></button>
             </div>)

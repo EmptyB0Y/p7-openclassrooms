@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const fs = require('fs')
 const userController = require('./user'); 
 const User = userController.getUserSchema();
+const mysql = require('mysql');
 
 getAuth = () =>{
   return "mongodb+srv://"+String(process.env.DB_USERNAME)+":"+String(process.env.DB_USERPASS)+"@"+String(process.env.DB_CLUSTERNAME)+".ukoxa.mongodb.net/"+String(process.env.DB_NAME)+"?retryWrites=true&w=majority";
