@@ -1,7 +1,7 @@
 #account-frame{
+    min-width: 580px;
     margin-left: 50px;
-    width: 800px;
-    height: 500px;
+    height: 800px;
     padding: 15px;
     border: 1px solid cornflowerblue;
     display: flex;
@@ -28,12 +28,4 @@
     width: 500px;
     text-align: center;
     color: white;
-}
-
-@media screen and (max-width: 880px) {
-    #account-frame{
-        flex-wrap: nowrap;
-        width: auto;
-        height: auto;
-    }
 }

@@ -1,8 +1,11 @@
-#absolute{
-  position: absolute;
-  width: 100%;
-}
-
 #root{
-  min-width: 585px;
+  min-width: 580px;
+}
+.sticky{
+  top: -130px;
+  opacity: 1;
+  position: sticky;
+}
+.relative{
+  position: relative;
 }

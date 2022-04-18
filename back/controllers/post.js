@@ -1,327 +1,332 @@
-const Post = require('../models/post');
-const mongoose = require('mongoose');
-const fs = require('fs')
-const userController = require('./user'); 
-const User = userController.getUserSchema();
-const mysql = require('mysql');
-
-getAuth = () =>{
-  return "mongodb+srv://"+String(process.env.DB_USERNAME)+":"+String(process.env.DB_USERPASS)+"@"+String(process.env.DB_CLUSTERNAME)+".ukoxa.mongodb.net/"+String(process.env.DB_NAME)+"?retryWrites=true&w=majority";
-}
+const {sequelize, User, Post} = require('../models/');
+const fs = require('fs');
 
 exports.getAllPosts = (req,res) =>{
-  mongoose.connect(getAuth(),
-  { useNewUrlParser: true,
-  useUnifiedTopology: true }).then(() =>{
-  Post.find()
+  if(req.params.topic === "notopic"){
+    Post.findAll()
+      .then(Posts => res.status(200).json(Posts))
+      .catch(error => res.status(500).json({ error }));
+  }
+  else{
+    Post.findAll({where:{topic:req.params.topic}})
     .then(Posts => res.status(200).json(Posts))
-    .catch(error => res.status(400).json({ error }));
-  });
-  };
+    .catch(error => res.status(500).json({ error }));
+  }
+};
 
-  exports.getAllPostsFromUser = (req,res) =>{
-    mongoose.connect(getAuth(),
-    { useNewUrlParser: true,
-    useUnifiedTopology: true }).then(() =>{
-        Post.find()
-        .then(posts => {
-          let postsFromUser = []
-          for(let i = 0; i < posts.length; i++){
-            if(posts[i].userId === req.params.id){
-              postsFromUser.push(posts[i]);
-            }
-          }
-          res.status(200).json(postsFromUser)
-        })
-        .catch(error => res.status(400).json({ error }));
-    })
-    .catch(error => res.status(404).json({ error }));
-  };
-  
-  exports.getOnePost = (req, res) => {
-    mongoose.connect(getAuth(),
-    { useNewUrlParser: true,
-    useUnifiedTopology: true }).then(() =>{
-    Post.findOne({ _id: req.params.id })
-    .then(Post => res.status(200).json(Post))
-    .catch(error => res.status(404).json({ error }));
-    });
-  };
-
-  exports.postPost = (req, res) => {
-
-      /*Post format : 
-      {"content":String}*/
-
-      if (!req.body.post) {
-      return res.status(400).send(
-        `post : {"content":String}`
-        );
+const sortTopics = async (tab) =>{
+  let topValue = 0;
+  sorting = {}
+  let sorted = [];
+  for(let i = 0; i< tab.length; i++){
+    if(sorting[tab[i].count] === undefined){
+      sorting[tab[i].count] = tab[i].topic;
     }
+    //console.log(sorting[tab[i]]);
+  }
+  console.log("Sorting : ");
+  console.log(sorting);
 
-    let PostCreated = {...req.body.post};
-    console.log("Post created : ");
-    console.log(PostCreated);
-    PostCreated.userId = res.locals.userId;
-    if(PostCreated.likes || 
-      PostCreated.dislikes || 
-      PostCreated.usersDisliked || 
-      PostCreated.usersLiked || 
-      PostCreated.comments){
-      return res.status(401).send(new Error('Unauthorized !'));
+  for(let i of Object.keys(sorting)){
+    if(Number(i) > topValue){
+      topValue = i;
     }
-
-    if(req.file){
-      PostCreated.imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+  }
+  console.log("topValue : ");
+  console.log(topValue);
+  for(let i = topValue; i > 0; i--){
+    if(sorting[i] !== undefined){
+      sorted.push({topic:sorting[i],count:i});
     }
+  }
+  console.log("Sorted : ");
+  console.log(sorted);
+  return sorted;
+}
 
-    mongoose.connect(getAuth(),
-    { useNewUrlParser: true,
-    useUnifiedTopology: true })
-    .then(() => {
-          const post = new Post({ ...PostCreated });
-          post.save().then(() => {
-            res.status(201).json({message: "Objet créé !"});
-          })
-          .catch(() => {
+exports.getAllPostsTopics = (req,res) =>{
+  Post.findAndCountAll()
+  .then(all => {
+    let Posts = all.rows;
+    let topics = [];
+    let ok = false;
+    let id = 0;
+    let sent = false;
+    Posts.map(post =>{
+      Post.findAndCountAll({where:{topic:String(post.topic)}})
+      .then(result =>{
+        id++;
+        console.log(id);
+        console.log(all.count);
+        console.log(post.topic);
+        console.log("---");
 
-            if(req.file){
-              if(PostCreated.imageUrl !== "noimage"){
-                fs.unlink('../back/images/' + PostCreated.imageUrl.split('/images/')[1], (err) => {
-                  if (err) {
-                    console.error(err)
-                  }
-                })
-              }
-            }
-            res.status(500).json({message: "Erreur lors de la création de l'objet !"})
-        });
-        })
-        .catch(() => {
-
-          if(req.file){
-            if(PostCreated.imageUrl){
-              fs.unlink('../back/images/' + PostCreated.imageUrl.split('/images/')[1], (err) => {
-                if (err) {
-                  console.error(err)
-                }
-              })
-            }
-          }
-          res.status(500).json({message: "Connexion à MongoDB échouée !"})
-      });
-  };
-
-  exports.editPost = (req,res) => {
-
-    if (!(req.body.content &&  
-      !req.body.likes &&
-      !req.body.dislikes &&
-      !req.body.usersLiked &&
-      !req.body.usersDisliked &&
-      !req.body.comments) && !req.body.post) {
-        return res.status(400).send(new Error('Bad request!')
-          );
-    }
-    
-    let PostModified;
-    if(req.body.post){
-      /*Post format : 
-      {"content":"..."}*/
-      
-      PostModified = JSON.parse(req.body.post);
-    }
-    else{
-      PostModified = { ...req.body};
-      if(PostModified.likes || 
-        PostModified.dislikes || 
-        PostModified.usersDisliked || 
-        PostModified.usersLiked || 
-        PostModified.comments){
-          return res.status(403).send(new Error('Forbidden !'));
+        if(topics.length === 0 && post.topic !== "notopic"){
+          topics.push({topic: post.topic,count: result.count});
         }
-    }
-    if(req.file){
-      PostModified.imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
-    }
-
-    mongoose.connect(getAuth(),
-    { useNewUrlParser: true, 
-    useUnifiedTopology: true })
-    .then(() =>{
-        Post.findOne({_id : req.params.id})
-        .then(post => {
-          User.findOne({ _id: res.locals.userId })
-          .then(userFound => {
-            if (res.locals.userId !== post.userId && userFound.access !== "admin"){
-              return res.status(401).json({message: "Unauthorized !"});
-            }
-          if(req.file){
-
-            if(post.imageUrl !== "noimage"){
-              fs.unlink('../back/images/' + post.imageUrl.split('/images/')[1], (err) => {
-                if (err) {
-                  console.error(err)
-                }
-              })
+        else{
+          for(let i = 0; i < topics.length; i++){
+            console.log(JSON.stringify(topics[i]) +" : "+ JSON.stringify({topic: post.topic,count: result.count}));
+            console.log("same ?");
+            console.log(JSON.stringify(topics[i]) === JSON.stringify({topic: post.topic,count: result.count}));
+            console.log("-----");
+            if(post.topic !== "notopic" && JSON.stringify(topics[i]) !== JSON.stringify({topic: post.topic,count: result.count})){
+              topics.push({topic: post.topic,count: result.count});
+              break;
             }
           }
-      
-          PostModified.userId = post.userId;
-          Post.updateOne({ _id: req.params.id }, { ...PostModified, _id: req.params.id })
-          .then(() => res.status(200).json({ message: 'Objet modifié !'}))
-          .catch(error => {
-            if(req.file){
-              if(PostModified.imageUrl !== "noimage"){
-                fs.unlink('../back/images/' + PostModified.imageUrl.split('/images/')[1], (err) => {
-                  if (err) {
-                    console.error(err)
-                  }
-                })
-              }
-            }
-            res.status(400).json({ error })
-          });
+        }
+        
+        if(id === all.count && !sent){
+          console.log("-------------------------");
+          console.log(topics);
+          console.log("-------------------------");          
+          console.log("Sent");
+          sent = true;
+          sortTopics(topics).then((sorted)=>{
+            return res.status(200).json(sorted);
+          })
+        }
+        
       });
     })
-  .catch(error => res.status(404).json({ error }));
   })
+  .catch(error => res.status(500).json({ error }));
+}
+
+exports.getAllPostsFromUser = (req,res) =>{
+
+  Post.findAll()
+  .then(posts => {
+    let postsFromUser = []
+    for(let i = 0; i < posts.length; i++){
+      if(posts[i].userId === req.params.id){
+        postsFromUser.push(posts[i]);
+      }
+    }
+    res.status(200).json(postsFromUser)
+  })
+  .catch(error => res.status(400).json({ error }));
+};
+  
+exports.getOnePost = (req, res) => {
+
+  Post.findOne({where:{ userId: req.params.id }})
+  .then(Post => res.status(200).json(Post))
+  .catch(error => res.status(404).json({ error }));
+};
+
+exports.postPost = (req, res) => {
+
+    if (!req.body.content) {
+    return res.status(400).send(new Error('Bad request !'));
+  }
+
+  let PostCreated = {...req.body};
+  console.log(req.body);
+  console.log("Post created : ");
+  PostCreated.userId = res.locals.userId;
+  if(PostCreated.likes || 
+    PostCreated.dislikes || 
+    PostCreated.usersDisliked || 
+    PostCreated.usersLiked || 
+    PostCreated.comments){
+    return res.status(403).send(new Error('Forbidden !'));
+  }
+
+  if(req.file){
+    PostCreated.imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+  }
+
+  if(PostCreated.topic){
+    if(PostCreated.topic === ''){
+      PostCreated.topic = 'notopic';
+    }
+  }
+  console.log(PostCreated);
+  Post.create({...PostCreated}).then(() => {
+      res.status(201).json({message: "Objet créé !"});
+    })
     .catch(() => {
+
       if(req.file){
-        if(PostModified.imageUrl !== "noimage"){
-          fs.unlink('../back/images/' + PostModified.imageUrl.split('/images/')[1], (err) => {
+        if(PostCreated.imageUrl){
+          fs.unlink('./images/' + PostCreated.imageUrl.split('/images/')[1], (err) => {
             if (err) {
               console.error(err)
             }
           })
         }
       }
-      res.status(404).json({message: 'Connexion à MongoDB échouée !'})
-    });
-  };
+      res.status(500).json({message: "Erreur lors de la création de l'objet !"})
+  });
+};
 
-  exports.deletePost = (req,res) => {
+exports.editPost = (req,res) => {
 
-    mongoose.connect(getAuth(),
-    { useNewUrlParser: true, 
-    useUnifiedTopology: true })
-    .then(() =>{
-      Post.findOne({ _id: req.params.id })
-        .then(post => {
-          User.findOne({ _id: res.locals.userId })
-          .then(userFound => {
-            if (res.locals.userId !== post.userId && userFound.access !== "admin"){
-              return res.status(401).json({message: "Unauthorized !"});
-            }
-
-            if(post.imageUrl !== "noimage"){
-              fs.unlink('../back/images/' + post.imageUrl.split('/images/')[1], (err) => {
-                if (err) {
-                  console.error(err)
-                }
-              })
-            }
-            Post.deleteOne({ _id: req.params.id })
-            .then(() => res.status(200).json({ message: 'Objet supprimé !'}))
-            .catch(error => res.status(400).json({ error }));
-          });
-        })
-        .catch(error => {
-          console.log(error);
-          return res.status(404).json({ message: "Objet non trouvé  !" });
-        });
-    })
-    .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
-  };
-
-  exports.postLike = (req,res) => {
-    mongoose.connect(getAuth(),
-    { useNewUrlParser: true, 
-    useUnifiedTopology: true })
-    .then(() =>{
-      if(req.body.like && req.body.like <= 1 || req.body.like >= -1){
-        Post.findOne({ _id: req.params.id })
-        .then(post => {
-
-          if(post.userId === res.locals.userId){
-            return res.status(401).json({message: "Unauthorized !"});
-          }
-          //Like
-          if(req.body.like == 1){
-
-            if(!post.usersLiked.includes(res.locals.userId)){
-              post.likes += 1;
-              post.usersLiked.push(res.locals.userId);
-
-              if(post.usersDisliked.includes(res.locals.userId)){
-                post.dislikes -= 1;
-                post.usersDisliked.splice(post.usersDisliked.indexOf(res.locals.userId));
-              }
-            }
-            else{
-              return res.status(401).json({message: "Unauthorized !"});
-            }
-            /*else{
-              Post.likes -= 1;
-              Post.usersLiked.splice(Post.usersLiked.indexOf(res.locals.userId));
-            }*/
-          }
-          //Dislike
-          else if(req.body.like == -1){
-            if(!post.usersDisliked.includes(res.locals.userId)){
-              post.dislikes += 1;
-              post.usersDisliked.push(res.locals.userId);
-
-              if(post.usersLiked.includes(res.locals.userId)){
-                Post.likes -= 1;
-                Post.usersLiked.splice(post.usersLiked.indexOf(res.locals.userId));
-              }
-            }
-            else{
-              return res.status(401).json({message: "Unauthorized !"});
-            }
-            /*else{
-              Post.dislikes -= 1;
-              Post.usersDisliked.splice(Post.usersDisliked.indexOf(res.locals.userId));  
-            }*/
-          }
-          //Remove like or dislike
-          else if(req.body.like == 0){
-
-            if(post.usersDisliked.includes(res.locals.userId)){
-              post.dislikes -= 1;
-              post.usersDisliked.splice(post.usersDisliked.indexOf(res.locals.userId)); 
-            }
-            else if(post.usersLiked.includes(res.locals.userId)){
-              post.likes -= 1;
-              post.usersLiked.splice(post.usersLiked.indexOf(res.locals.userId));
-            }
-            else{
-              return res.status(401).json({message: "Unauthorized !"});
-            }
-          }
-          let PostLiked = {
-              "userId" : post.userId,
-              "content" : post.content,
-              "likes" : post.likes,
-              "dislikes" : post.dislikes,
-              "usersLiked" : post.usersLiked,
-              "usersDisliked" : post.usersDisliked
-        };
-
-        Post.updateOne({ _id: req.params.id }, { ...PostLiked, _id: req.params.id })
-          .then(() => res.status(200).json({ message: 'Like ajouté !'}))
-          .catch(() => res.status(400).json({ message: 'Erreur lors de l\'ajout du like !'}));
-        })
-        .catch(() => res.status(404).json({ message: "Objet non trouvé  !" }));
-      }
-      else{
-        return res.status(400).send(new Error('Bad request!'));
-      }
-    })
-    .catch(() => res.status(500).json({message: 'Connexion à MongoDB échouée !'}));
-  };
-  
-  exports.getPostSchema = () =>{
-    return Post;
+  if (!(req.body.content &&  
+    !req.body.likes &&
+    !req.body.dislikes &&
+    !req.body.usersLiked &&
+    !req.body.usersDisliked &&
+    !req.body.comments) && !req.body.post) {
+      return res.status(400).send(new Error('Bad request!')
+        );
   }
+  
+  let PostModified;
+  if(req.body.post){
+    /*Post format : 
+    {"content":"..."}*/
+    
+    PostModified = JSON.parse(req.body.post);
+  }
+  else{
+    PostModified = { ...req.body};
+    if(PostModified.likes || 
+      PostModified.dislikes || 
+      PostModified.usersDisliked || 
+      PostModified.usersLiked || 
+      PostModified.comments){
+        return res.status(403).send(new Error('Forbidden !'));
+      }
+  }
+  if(req.file){
+    PostModified.imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+  }
+
+  Post.findOne({where:{uid : req.params.id}})
+  .then(post => {
+    User.findOne({where:{ uid: res.locals.userId }})
+    .then(userFound => {
+      if (res.locals.userId !== post.userId && userFound.access !== "admin"){
+        return res.status(401).json({message: "Unauthorized !"});
+      }
+      if(req.file){
+
+        if(post.imageUrl !== "noimage"){
+          fs.unlink('../back/images/' + post.imageUrl.split('/images/')[1], (err) => {
+            if (err) {
+              console.error(err)
+            }
+          })
+        }
+      }
+
+      PostModified.userId = post.userId;
+      Post.update({...PostModified}, {where:{uid: req.params.id}})
+      .then(() => res.status(200).json({ message: 'Objet modifié !'}))
+      .catch(error => {
+        if(req.file){
+          if(PostModified.imageUrl !== "noimage"){
+            fs.unlink('../back/images/' + PostModified.imageUrl.split('/images/')[1], (err) => {
+              if (err) {
+                console.error(err)
+              }
+            })
+          }
+        }
+        res.status(400).json({ error })
+      });
+    });
+  })
+  .catch(error => res.status(404).json({ error }));
+};
+
+exports.deletePost = (req,res) => {
+
+  Post.findOne({where:{uid: req.params.id}})
+    .then(post => {
+      User.findOne({where:{uid: res.locals.userId}})
+      .then(userFound => {
+        if (res.locals.userId !== post.userId && userFound.access !== "admin"){
+          return res.status(401).json({message: "Unauthorized !"});
+        }
+
+        if(post.imageUrl !== "noimage"){
+          fs.unlink('./images/' + post.imageUrl.split('/images/')[1], (err) => {
+            if (err) {
+              console.error(err)
+            }
+          })
+        }
+        Post.destroy({where:{ uid: req.params.id}})
+        .then(() => res.status(200).json({ message: 'Objet supprimé !'}))
+        .catch(error => res.status(400).json({ error }));
+      });
+    })
+    .catch(error => {
+      console.log(error);
+      return res.status(404).json({ message: "Objet non trouvé  !" });
+    });
+};
+
+exports.postLike = (req,res) => {
+  console.log(req.body.like);
+
+  if(req.body.like && req.body.like === 1 || req.body.like === -1){
+    Post.findOne({where:{ uid: req.params.id}})
+    .then(post => {
+
+      if(post.userId === res.locals.userId){
+        return res.status(403).json({message: "Forbidden !"});
+      }
+      let PostLiked = {
+        "userId": post.userId,
+        "content": post.content,
+        "imageUrl": post.imageUrl,
+        "likes": post.likes,
+        "dislikes": post.dislikes,
+        "usersLiked": post.usersLiked,
+        "usersDisliked": post.usersDisliked,
+        "comments": post.comments
+      };
+      //Like
+      if(req.body.like === 1){
+        if(!PostLiked.usersLiked.includes(String(res.locals.userId))){
+          PostLiked.likes += 1;
+          PostLiked.usersLiked.push(String(res.locals.userId));
+          if(PostLiked.usersDisliked.includes(String(res.locals.userId))){
+            PostLiked.dislikes -= 1;
+            PostLiked.usersDisliked.splice(PostLiked.usersDisliked.indexOf(String(res.locals.userId)));
+          }
+        }
+        //Remove Like
+        else{
+          PostLiked.likes -= 1;
+          PostLiked.usersLiked.splice(PostLiked.usersLiked.indexOf(String(res.locals.userId)));
+        }
+      }
+      //Dislike
+      else if(req.body.like === -1){
+        if(!PostLiked.usersDisliked.includes(String(res.locals.userId))){
+          PostLiked.dislikes += 1;
+          PostLiked.usersDisliked.push(String(res.locals.userId));
+
+          if(PostLiked.usersLiked.includes(String(res.locals.userId))){
+            PostLiked.likes -= 1;
+            PostLiked.usersLiked.splice(PostLiked.usersLiked.indexOf(String(res.locals.userId)));
+          }
+        }
+        //Remove dislike
+        else{
+          PostLiked.dislikes -= 1;
+          PostLiked.usersDisliked.splice(PostLiked.usersDisliked.indexOf(String(res.locals.userId)));  
+        }
+      }
+    
+    console.log("likes : "+PostLiked.usersLiked);
+    Post.update( {...PostLiked}, {where:{uid: req.params.id}})
+      .then(() => res.status(200).json({ message: 'Like ajouté !'}))
+      .catch(() => res.status(500).json({ message: 'Erreur lors de l\'ajout du like !'}));
+    })
+    .catch(() => res.status(404).json({ message: "Objet non trouvé  !" }));
+  }
+  else{
+    return res.status(400).send(new Error('Bad request!'));
+  }
+};
+
+exports.getPostSchema = () =>{
+  return Post;
+}

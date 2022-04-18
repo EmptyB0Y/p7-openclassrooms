@@ -6,7 +6,8 @@ const commentCtrl = require('../controllers/comment');
 const auth = require('../middlewares/auth');
 const upload = require('../middlewares/upload');
 
-router.get('/posts', auth, postCtrl.getAllPosts);
+router.get('/posts/topic/:topic', auth, postCtrl.getAllPosts);
+router.get('/posts/topics', postCtrl.getAllPostsTopics);
 router.get('/profiles/:id/posts', auth, postCtrl.getAllPostsFromUser);
 router.get('/posts/:id', auth, postCtrl.getOnePost);
 router.post('/posts', auth, upload, postCtrl.postPost);

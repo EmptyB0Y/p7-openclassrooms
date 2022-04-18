@@ -1,4 +1,5 @@
 .posts{
+    min-width: 580px;
     background-color: aliceblue;
     border: 2px solid rgb(32, 32, 110);
     width: 70%;
@@ -23,9 +24,40 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    border-bottom: 1px solid black;
+}
+.post-author{
+    display: flex;
+    flex-direction: row;
+}
+.post-author a{
+    padding-left: 5px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.post-title-picture-frame{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 70px;
+    height: 70px;
+    overflow: hidden;
+    border: 1px solid cornflowerblue;
+    border-radius: 5px;
+}
+.post-title-picture{
+    height: 70px;
 }
 .post-content{
-    padding-bottom: 15px;
+    padding: 10px;
+}
+.post-image-frame{
+    display: flex;
+    justify-content: center;
+    padding: 2px;
+}
+.post-image{
+    width: 98%;
 }
 .post-reviews{
     border-top: 2px solid black;
@@ -79,11 +111,40 @@
     border:rgb(32, 32, 110) solid 2px;
     margin-bottom: 5px;
 }
-.comment-profile-picture{
-    width: 50px;
-    height: 50px;
+.comment-profile-picture-frame{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 70px;
+    height: 70px;
+    overflow: hidden;
+    border: 1px solid cornflowerblue;
+    border-radius: 5px;
 }
-
+.comment-profile-picture{
+    height: 70px;
+}
+.comment-author{
+    font-weight: 700;
+    color: black;
+    margin-right: auto;
+}
+.comment-content{
+    padding: 5px;
+    width: 350px;
+    overflow-wrap: break-word;
+}
 .delete-comment{
     margin-left: auto;
+    height: 20px;
+}
+.gifs{
+    border: 1px solid cornflowerblue;
+    background-color: grey;
+    color: white;
+    max-height: 20px;
+    margin-bottom: 15px;
+}
+.gifs:hover{
+    cursor: pointer;
 }

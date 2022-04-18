@@ -4,6 +4,7 @@ import {DelComment, GetComments,PostComment} from '../services/comments.service'
 import {SearchProfiles} from '../services/profiles.service'
 import {Profile} from './Profile'
 import { Top } from './Top'
+import {GifSearch} from './GifSearch'
 import ReactDOM from 'react-dom'
 
 export const Comments = (id) => {
@@ -81,6 +82,35 @@ export const Comments = (id) => {
         .then(()=>{ refresh() });
     }
 
+    function handleClickGifs(){
+        ReactDOM.render(<GifSearch place={id}/>, document.getElementById('gif-anchor-'+id));
+    }
+
+    const formatContent = (text) =>{
+        const tab = text.split(' ');
+        let content = [];
+        console.log(tab);
+        let string = '';
+        for(let i = 0; i < tab.length; i++){
+            if(tab[i].startsWith(':') && tab[i].endsWith(':')){
+                content.push((<p>{string}</p>));
+                string = '';
+                content.push((<img src={tab[i].substring(1,tab[i].length-1)}></img>));
+            }
+            else{
+                string += ' '+tab[i];
+            }
+        }
+
+        if(string !== ''){
+            content.push((<p>{string}</p>));
+        }
+
+        return (<div>
+            {content.map((el)=>el)}
+        </div>);
+    }
+
     useEffect(() => {
         GetComments(id)
         .then(data => {
@@ -120,11 +150,13 @@ export const Comments = (id) => {
         commentsElement = (
             <ul>
             {comments.map((comment) =>
-                <li className='comment' key={comment._id} id={comment._id}>
-                    <img className='comment-profile-picture' src={getProfilePic(comment.author)}></img>
+                <li className='comment' key={comment.uid} id={comment.uid}>
+                    <div className='comment-profile-picture-frame'>
+                        <img className='comment-profile-picture' src={getProfilePic(comment.author)}></img>
+                    </div>
                     <div className='comment-content'>
                         <a href='#' className='comment-author' onClick={(e) => handleClick(e,comment.author)}>{getFirstname(comment.author)} {getLastname(comment.author)}</a>~
-                        {comment.text}
+                        {formatContent(comment.text)}
                     </div>
                     {deleteCommentElement[comment.author]}
                 </li>)}
@@ -143,9 +175,11 @@ export const Comments = (id) => {
             {commentsElement}
         </div>
         <div className='add-comment'>
-            <form onSubmit={(e) => {handleSubmit(e)}}>
-                <input name='input' className='add-comment-input'></input>
-                <button className='add-comment-button'>post</button>
+            <form className='add-comment-form' onSubmit={(e) => {handleSubmit(e)}}>
+                <input name='input' id={'comment-input-'+id} className='add-comment-input'></input>
+                <button className='add-comment-button'>POST</button>
+                <a className='gifs' onClick={handleClickGifs}>GIFS</a>
+                <div id={'gif-anchor-'+id}></div>
             </form>
         </div>
     </div>

@@ -5,17 +5,45 @@ import {Banner} from './Banner'
 import {Posts} from './Posts'
 import { AddPost } from './AddPost'
 import { Searchbar } from './Searchbar'
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom'
 import { Account } from './Account'
+import { Topics } from './Topics'
+import { useEffect, useState } from 'react'
+import { GetTopics } from '../services/posts.service'
 
 export const Top = () =>{
+
+    const [topics,setTopics] = useState([]);
+    const [load,setLoad] = useState(false);
+
+    useEffect(() => {
+        GetTopics()
+        .then(data => {
+            setTopics(data);
+            setLoad(true);
+        })
+        .catch((err) => console.log(err)) 
+      }, [])
+
+    let topicsElement = <></>;
+    if(load){
+        console.log(topics);
+        topicsElement = (
+        <ul>{topics.map((top)=>
+        <li className='topic' key={top.topic} id={top.topic} onClick={(e) => handleClickTopic(e)}>
+            <p>{top.count}#{top.topic}</p>
+        </li>
+        )}</ul>);
+    }
     let topElement = (
         <div className="top">
         <div id='options'>
             <div id='options-anchor'>
                 <div id='options-padding'>
                     <div className='options-link'><a onClick={handleClickAccount}>Account</a></div>
-                    <div className='options-link'><a>Messages</a></div>
+                    <div className='options-link'><a onClick={handleClickTopics}>Topics</a>
+                        {topicsElement}
+                    </div>
                 </div>
                 <a href="#" id="options-button"><img src={options} alt="options" className="options-icon"></img></a>
             </div>
@@ -30,9 +58,50 @@ export const Top = () =>{
     );
     return (
         <div>
-        {topElement}
+            {topElement}
         </div>
         );
+
+    function handleClickTopics(){
+        ReactDOM.render(
+            <div>
+                <div>
+                    <Banner />{topElement}
+                </div>
+                <div>
+                    <Topics />
+                </div>
+             </div>
+                ,document.getElementById('root'));
+    }
+
+    function handleClickTopic(e){
+        e.preventDefault();
+        e.stopPropagation();
+        console.log(e.target);
+        let topicId = e.target.id;
+        console.log(topicId);
+        if(topicId === ''){
+            topicId = ReactDOM.findDOMNode(e.target).parentNode.id;
+        }
+        ReactDOM.render(
+            <div>
+            </div>,
+            document.getElementById('root')
+        );
+        setTimeout(() => {
+            ReactDOM.render(
+                <div>
+                    <div>
+                        <Banner />{topElement}
+                    </div>
+                    <div>
+                        <AddPost topic={topicId} /><Posts topic={topicId}/>
+                    </div>
+                </div>
+                    ,document.getElementById('root'));
+            }, 100);
+    }
 
     function handleClickAccount(){
         ReactDOM.render(
@@ -71,10 +140,17 @@ export const Top = () =>{
         e.preventDefault();
         ReactDOM.render(
             <div>
-                <div><Banner /><Top /></div>
-                <div><AddPost /><Posts /></div>
             </div>,
             document.getElementById('root')
         );
+        setTimeout(() => {
+            ReactDOM.render(
+                <div>
+                    <div><Banner />{topElement}</div>
+                    <div><AddPost topic='notopic'/><Posts topic="notopic"/></div>
+                </div>,
+                document.getElementById('root')
+            );
+        }, 100);
     }
 }

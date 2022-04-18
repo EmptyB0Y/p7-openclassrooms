@@ -8,9 +8,18 @@ const expressRateLimit = require('express-rate-limit');
 const bodyParser = require('body-parser')
 const postRoutes = require('./routes/post');
 const userRoutes = require('./routes/user');
-const mysql = require('mysql');
+const {sequelize, Sequelize} = require('./models/index');
+const pg = require('pg');
 
-app.use(bodyParser.json());
+/*const sequelize = new Sequelize('postgres://postgres:postgres@localhost:5432/sequelize_db', {
+  dialectModule: pg
+});*/
+
+async function syncDb() {
+  await sequelize.sync();
+}
+
+syncDb();
 
 //Set up environment variables access
 dotenv.config({path:".env"});
@@ -23,21 +32,6 @@ const apiRequestLimiter = expressRateLimit({
 
 //Limit requests
 //app.use(apiRequestLimiter);
-
-const db = mysql.createConnection({
-  host: "localhost",
-  user: process.env.DB_USERNAME,
-  password: process.env.DB_USERPASS
-});
-
-db.connect(function(err) {
-  if (err) throw err;
-  console.log("Connecté à la base de données MySQL!");
- db.query("CREATE DATABASE groupomania", function (err, result) {
-      if (err) throw err;
-      console.log("Base de données créée !");
-    });
-});
 
 //Allow CORS request
 app.use(cors({

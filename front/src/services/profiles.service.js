@@ -67,22 +67,10 @@ export const TextSearchProfiles = (query) => {
 }
 
 export const EditProfile = (profile,data=null) => {
-
-  /*const options = {
-        headers: { Authorization: 'Bearer '+sessionStorage.getItem("token"),
-        "Content-Type": "multipart/form-data" }
-    };
-
-    const bodyParameters = {
-      userId : sessionStorage.getItem("userId"),
-      profile: profile
-    };*/
-
   
-    //let p = {"firstname": profile.firstname,"lastname": profile.lastname,"description": profile.description,"userId": profile.userId,"access": profile.access};
     let fm = new FormData();
     fm.append('userId', sessionStorage.getItem("userId"));
-    fm.append('firstname', profile.firstname);  
+    fm.append('firstname', profile.firstname);
     fm.append('lastname', profile.lastname);
     fm.append('description', profile.description);
     fm.append('access', profile.access);
