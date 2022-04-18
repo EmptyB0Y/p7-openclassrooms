@@ -10,6 +10,7 @@ import {SearchProfiles} from '../services/profiles.service'
 import {Comments} from './Comments'
 import {Top} from './Top'
 import {Profile} from './Profile'
+import {Banner} from './Banner'
 
 import ReactDOM from 'react-dom'
 
@@ -47,8 +48,11 @@ export const Posts = (topic) => {
 
     const handleClickAuthor = (profileId) =>{
         ReactDOM.render(
-            <div>
-                <Top />
+            <div className='relative'>
+                <div className='sticky'>
+                    <Banner />
+                    <Top />
+                </div>
                 <Profile id={profileId} />
             </div>,
               document.getElementById('root')

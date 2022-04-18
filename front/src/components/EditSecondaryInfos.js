@@ -1,6 +1,7 @@
 import save from '../assets/Icons/save.webp'
 import pen from '../assets/Icons/pen.webp'
 import {EditProfile} from '../services/profiles.service'
+import TextareaAutosize from 'react-textarea-autosize'
 import { useEffect, useState } from 'react'
 
 export const EditSecondaryInfos = (profile) =>{
@@ -23,7 +24,7 @@ export const EditSecondaryInfos = (profile) =>{
     const handleClickSecondaryInfos = () => {
         let editform = 
         <form id='edit-secondary-infos' onSubmit={(e) => handleSubmitSecondaryInfos(e)}>
-            <input type='text' id='set-description' name='set-description' defaultValue={profile.profile.description}></input>
+            <TextareaAutosize role='textbox' id='set-description' name='set-description' defaultValue={profile.profile.description} rows="4"/>
             <button><img src={save} width='10' height='10'></img></button>
         </form>;
        setState(editform);
@@ -45,14 +46,6 @@ export const EditSecondaryInfos = (profile) =>{
             </div>)
         });
       }
-
-      /*const handleChange = (e) => {
-        if(description.length > 256){
-            e.stopPropagation();
-            document.getElementById("set-description").value = description;
-        }
-        setDescription(document.getElementById("set-description").value);
-      }*/
 
     return state;
 }

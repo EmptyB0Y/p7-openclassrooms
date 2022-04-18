@@ -5,6 +5,7 @@ import {SearchProfiles} from '../services/profiles.service'
 import {Profile} from './Profile'
 import { Top } from './Top'
 import {GifSearch} from './GifSearch'
+import TextareaAutosize from 'react-textarea-autosize';
 import ReactDOM from 'react-dom'
 
 export const Comments = (id) => {
@@ -83,7 +84,9 @@ export const Comments = (id) => {
     }
 
     function handleClickGifs(){
-        ReactDOM.render(<GifSearch place={id}/>, document.getElementById('gif-anchor-'+id));
+        let postId = id.id;
+        console.log(postId);
+        ReactDOM.render(<GifSearch place={id.id}/>, document.getElementById('gif-anchor-'+String(postId)));
     }
 
     const formatContent = (text) =>{
@@ -176,10 +179,10 @@ export const Comments = (id) => {
         </div>
         <div className='add-comment'>
             <form className='add-comment-form' onSubmit={(e) => {handleSubmit(e)}}>
-                <input name='input' id={'comment-input-'+id} className='add-comment-input'></input>
+                <TextareaAutosize role='textbox' placeholder="Add comment" name='input' id={'comment-input-'+id.id} className='add-comment-input' rows="2"/>
                 <button className='add-comment-button'>POST</button>
                 <a className='gifs' onClick={handleClickGifs}>GIFS</a>
-                <div id={'gif-anchor-'+id}></div>
+                <div id={'gif-anchor-'+id.id}></div>
             </form>
         </div>
     </div>

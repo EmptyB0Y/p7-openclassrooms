@@ -4,12 +4,18 @@ import {Top} from './Top'
 import {AddPost} from './AddPost'
 import {Posts} from './Posts'
 import {Login} from './Login'
+import {ReactSession} from 'react-client-session'
+
+ReactSession.setStoreType("localStorage");
 
 const App = () =>{
 
-    if(sessionStorage.getItem("token") === null){
+    if(ReactSession.get("token") === null){
         return <div><Banner /><Login /></div>
     }
+    sessionStorage.setItem("token", ReactSession.get("token"));
+    sessionStorage.setItem("userId", ReactSession.get("userId"));
+
     return <div className='relative'>
             <div className='sticky'>
                 <Banner /><Top />

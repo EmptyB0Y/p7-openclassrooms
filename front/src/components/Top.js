@@ -1,4 +1,5 @@
 import '../styles/Top.css'
+import '../styles/App.css'
 import options from '../assets/Icons/options.png'
 import {Profile} from './Profile'
 import {Banner} from './Banner'
@@ -10,6 +11,7 @@ import { Account } from './Account'
 import { Topics } from './Topics'
 import { useEffect, useState } from 'react'
 import { GetTopics } from '../services/posts.service'
+import {ReactSession} from 'react-client-session'
 
 export const Top = () =>{
 
@@ -64,8 +66,8 @@ export const Top = () =>{
 
     function handleClickTopics(){
         ReactDOM.render(
-            <div>
-                <div>
+            <div className='relative'>
+                <div className='sticky'>
                     <Banner />{topElement}
                 </div>
                 <div>
@@ -91,9 +93,10 @@ export const Top = () =>{
         );
         setTimeout(() => {
             ReactDOM.render(
-                <div>
-                    <div>
-                        <Banner />{topElement}
+                <div className='relative'>
+                    <div className='sticky'>
+                        <Banner />
+                        {topElement}
                     </div>
                     <div>
                         <AddPost topic={topicId} /><Posts topic={topicId}/>
@@ -105,8 +108,10 @@ export const Top = () =>{
 
     function handleClickAccount(){
         ReactDOM.render(
-        <div>
-            {topElement}
+        <div className='relative'>
+            <div className='sticky'>
+                {topElement}
+            </div>
             <Account />
         </div>
             ,document.getElementById('root'));
@@ -121,8 +126,11 @@ export const Top = () =>{
         );
         setTimeout(() => {
             ReactDOM.render(
-                <div>
-                    {topElement}
+                <div className='relative'>
+                    <div className='sticky'>
+                        <Banner />
+                        {topElement}
+                    </div>
                     <Profile id={sessionStorage.getItem("userId")} />
                 </div>,
                 document.getElementById('root')
@@ -133,6 +141,8 @@ export const Top = () =>{
     function handleClickLogout() {
         sessionStorage.removeItem("userId");
         sessionStorage.removeItem("token");
+        ReactSession.set("userId",null);
+        ReactSession.set("token",null);
         window.location.reload();
     }
 
@@ -145,8 +155,11 @@ export const Top = () =>{
         );
         setTimeout(() => {
             ReactDOM.render(
-                <div>
-                    <div><Banner />{topElement}</div>
+                <div className='relative'>
+                    <div className='sticky'>
+                        <Banner />
+                        {topElement}
+                    </div>
                     <div><AddPost topic='notopic'/><Posts topic="notopic"/></div>
                 </div>,
                 document.getElementById('root')

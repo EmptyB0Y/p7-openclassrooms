@@ -2,15 +2,9 @@ const {sequelize, User, Comment, Post} = require('../models/');
 
 exports.getAllCommentsFromPost = (req,res) =>{
 
-  Comment.findAll()
+  Comment.findAll({where:{post : req.params.id}})
     .then(Comments => {
-      postComments = [];
-      for(let i = 0; i < Comments.length; i++){
-        if(Comments[i].post === req.params.id){
-          postComments.push(Comments[i]);
-        }
-      }
-      res.status(200).json(postComments)
+      res.status(200).json(Comments)
     })
     .catch(error => res.status(400).json({ error }));
 };

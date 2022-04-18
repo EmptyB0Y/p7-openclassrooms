@@ -42,6 +42,7 @@ export const GifSearch = (place) =>{
     }
 
     function handleClickCloseGifs(){
+        console.log(place);
         ReactDOM.render(<></>, document.getElementById('gif-anchor-'+place.place));
     }
 

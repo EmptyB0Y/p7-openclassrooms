@@ -1,13 +1,16 @@
 import '../styles/AddPost.css'
 import {PostPost} from '../services/posts.service'
 import {GifSearch} from './GifSearch'
+import {Banner} from './Banner'
+import {Top} from './Top'
+import {Posts} from './Posts'
 import { useEffect, useState } from 'react'
+import TextareaAutosize from 'react-textarea-autosize';
 import ReactDOM from 'react-dom'
 
 export const AddPost = (topic) => {
 
     const [height,setHeight] = useState(90);
-    const [publish,setPublish] = useState(false);
     const [topicSegment,setTopic] = useState(<input id='set-topic-input' name='set-topic-input'></input>);
     const [image,setImage] = useState(null);
 
@@ -33,23 +36,32 @@ export const AddPost = (topic) => {
         element.style.height = height+"px";
     }
     
-    function handleClick(e){
-        if(e.target.innerText === "What's on your mind ?"){
-            e.target.innerText = "";
-            setPublish(true);
-        }
-    }
-    
     function handleSubmit(e){
         e.preventDefault();
-        if(document.getElementById("addpost-input").innerText !== '' && publish){
-            let text = document.getElementById("addpost-input").innerText;
+        if(image !== null || document.getElementById("addpost-input").value !== ''){
+            let text = document.getElementById("addpost-input").value;
             let topic = e.target['set-topic-input'].value;
             if(topic === ''){
                 topic = 'notopic';
             }
-            PostPost(text,topic,image);
-            window.location.reload();
+            PostPost(text,topic,image).then(()=>{
+                ReactDOM.render(
+                    <div>
+                    </div>,
+                      document.getElementById('root')
+                );
+                setTimeout(() => {
+                    ReactDOM.render(
+                    <div className='relative'>
+                        <div className='sticky'>
+                            <Banner />
+                            <Top />
+                        </div>
+                        <AddPost topic={topic}/>
+                        <Posts topic={topic}/>
+                    </div>,document.getElementById('root'));
+                }, 100);
+            });
         }
     }
     
@@ -67,17 +79,18 @@ export const AddPost = (topic) => {
     function handleClickGifs(){
         ReactDOM.render(<GifSearch place='addpost'/>, document.getElementById('gif-anchor-addpost'));
     }
-
-    return <div id="addpost-frame">
-        <form id='addpost-form' onSubmit={(e) => handleSubmit(e)} onClick={(e) => handleClick(e)} onInput={()=>handleInput()}>
-            <div id='set-topic'><p>Topic #</p>{topicSegment}</div>
-            <span contentEditable={true} role='textbox' id='addpost-input' name='addpost-input'>What's on your mind ?</span>
-            <button id='addpost-submit' name='addpost-submit'>POST</button>
-            <div id='media'>
-                <input type='file' id='upload' onInput={(e) => handleInputImage(e)} width='20' height='20' multiple/>
-                <a className='gifs' onClick={handleClickGifs}>GIFS</a>
-                <div id='gif-anchor-addpost'></div>
-            </div>
-        </form>
+    //        <span contentEditable={true} role='textbox' id='addpost-input' name='addpost-input'>What's on your mind ?</span>
+    return (<div id="addpost-frame">
+    <form id='addpost-form' onSubmit={(e) => handleSubmit(e)} onInput={()=>handleInput()}>
+        <div id='set-topic'><p>Topic #</p>{topicSegment}</div>
+        <TextareaAutosize role='textbox' placeholder="What's on your mind ?" id="addpost-input" name="addpost-input" rows="4"/>
+        <button id='addpost-submit' name='addpost-submit'>POST</button>
+        <div id='media'>
+            <input type='file' id='upload' onInput={(e) => handleInputImage(e)} width='20' height='20' multiple/>
+            <a className='gifs' onClick={handleClickGifs}>GIFS</a>
+            <div id='gif-anchor-addpost'></div>
         </div>
+    </form>
+    </div>);
+;
 }

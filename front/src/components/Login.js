@@ -2,6 +2,7 @@ import '../styles/Login.css'
 import arrow from '../assets/Icons/arrow-right.webp'
 import {Signup} from './Signup'
 import {LoginUser} from '../services/credentials.service'
+import {ReactSession} from 'react-client-session'
 
 export const Login = () => {
 
@@ -18,7 +19,7 @@ export const Login = () => {
                 </form>
                 <p>Not registered yet ? : <a href='#' onClick={handleClick}>Sign up</a></p>
             </div>
-                <div id='signup-component'><Signup /></div>
+            <div id='signup-component'><Signup /></div>
         </div>
         )
 }
@@ -32,6 +33,8 @@ function handleSubmit(e) {
         console.log("data : ");
         console.log(data);
         if(data.token){
+            ReactSession.set("userId",data.userId);
+            ReactSession.set("token",data.token);
             sessionStorage.setItem("userId",data.userId)
             sessionStorage.setItem("token",data.token)
             window.location.reload();
