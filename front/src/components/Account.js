@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
-import { GetUser, EditUserPassword, EditUserEmail } from "../services/accounts.service";
 import "../styles/Account.css"
+import { useEffect, useState } from "react";
+import { GetUser, EditUserPassword, EditUserEmail, DeleteUser } from "../services/accounts.service";
+import {ReactSession} from 'react-client-session'
+import ReactDOM from 'react-dom'
 
 export const Account = () =>{
 
@@ -49,6 +51,7 @@ export const Account = () =>{
             }
         });
     }
+
     const handleInputPassword = () =>{
         if(document.getElementById("password-change-error").style.display === "block"){
             document.getElementById("password-change-error").style.display = "none";
@@ -67,6 +70,32 @@ export const Account = () =>{
         }
         if(document.getElementById("email-success").style.display === "block"){
             document.getElementById("email-success").style.display = "none";
+        }
+    }
+
+    const handleSubmitDelete = (e) =>{
+        e.preventDefault();
+        DeleteUser(e.target["delete-input"].value)
+        .then((res) => {
+            if(res.statusText == 'OK'){
+                sessionStorage.removeItem("userId");
+                sessionStorage.removeItem("token");
+                ReactSession.set("userId",null);
+                ReactSession.set("token",null);
+                ReactDOM.render(<div><h1>ACCOUNT DELETED</h1></div>,document.getElementById('root'));
+                setTimeout(() => {
+                    window.location.reload();
+                    }, 100);
+            }
+            else{
+                document.getElementById("delete-account-error").style.display = "block";
+            }
+            });
+        }
+    
+    const handleInputDelete = () =>{
+        if(document.getElementById("delete-account-error").style.display === "block"){
+            document.getElementById("delete-account-error").style.display = "none";
         }
     }
 
@@ -119,9 +148,10 @@ export const Account = () =>{
                 <div id='delete-frame'>
                 <h2>DELETE ACCOUNT</h2>
                     <p>Enter your password to delete your account : </p>
-                    <form id='delete-form'>
-                        <input type='password' id='delete-form-password-input'></input>
+                    <form id='delete-form' onInput={handleInputDelete} onSubmit={(e)=>handleSubmitDelete(e)}>
+                        <input type='password' name='delete-input' id='delete-form-password-input'></input>
                         <button id='delete-form-password-button'>DELETE</button>
+                        <p className='form-error' id='delete-account-error'>Error, deletion failed !</p>
                     </form>
                 </div>
             </div>

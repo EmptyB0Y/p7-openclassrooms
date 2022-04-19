@@ -10,12 +10,10 @@ import ReactDOM from 'react-dom'
 
 export const AddPost = (topic) => {
 
-    const [height,setHeight] = useState(90);
     const [topicSegment,setTopic] = useState(<input id='set-topic-input' name='set-topic-input'></input>);
     const [image,setImage] = useState(null);
 
     useEffect(()=>{
-        document.getElementById("addpost-frame").style.height = height+"px";
         console.log(topic.topic);
         if(topic.topic !== 'notopic'){
             setTopic(<input id='set-topic-input' value={topic.topic}></input>);
@@ -25,15 +23,7 @@ export const AddPost = (topic) => {
     function handleInput(){
         let element = document.getElementById("addpost-frame");
         let input = document.getElementById("addpost-input");
-        let j = 90;
-        for(let i = 0; i < input.innerText.length; i++){
-            if(input.innerText.charAt(i) === '\n'){
-                j += 10;
-            }
-        }
-        setHeight(j);
-        console.log(height);
-        element.style.height = height+"px";
+        element.style.height = input.style.height+"px";
     }
     
     function handleSubmit(e){
@@ -83,7 +73,7 @@ export const AddPost = (topic) => {
     return (<div id="addpost-frame">
     <form id='addpost-form' onSubmit={(e) => handleSubmit(e)} onInput={()=>handleInput()}>
         <div id='set-topic'><p>Topic #</p>{topicSegment}</div>
-        <TextareaAutosize role='textbox' placeholder="What's on your mind ?" id="addpost-input" name="addpost-input" rows="4"/>
+        <TextareaAutosize onInput={handleInput} role='textbox' placeholder="What's on your mind ?" id="addpost-input" name="addpost-input" rows="4"/>
         <button id='addpost-submit' name='addpost-submit'>POST</button>
         <div id='media'>
             <input type='file' id='upload' onInput={(e) => handleInputImage(e)} width='20' height='20' multiple/>

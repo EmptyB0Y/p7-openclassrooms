@@ -35,7 +35,6 @@ export const DelComment = (commentId) =>{
         data:{
             userId : sessionStorage.getItem("userId")
         }
-
     })
     .then((res) => console.log(res.data))
     .catch((err) => err)

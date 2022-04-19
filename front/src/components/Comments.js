@@ -92,7 +92,7 @@ export const Comments = (id) => {
     const formatContent = (text) =>{
         const tab = text.split(' ');
         let content = [];
-        console.log(tab);
+        console.log("tab : "+tab);
         let string = '';
         for(let i = 0; i < tab.length; i++){
             if(tab[i].startsWith(':') && tab[i].endsWith(':')){

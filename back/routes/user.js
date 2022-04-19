@@ -13,7 +13,7 @@ router.get('/secure/users', auth, userCtrl.getAllUsers);
 router.get('/secure/users/:id', auth, userCtrl.getOneUser);
 router.put('/secure/users/:id/changePassword', auth, testPassword, userCtrl.editUserPassword);
 router.put('/secure/users/:id/changeEmail', auth, testEmail, userCtrl.editUserEmail);
-router.delete('/secure/users/:id/deleteUser', auth, userCtrl.deleteUser);
+router.delete('/secure/users/:id', auth, userCtrl.deleteUser);
 router.get('/profiles/:id', auth, userCtrl.getOneProfile);
 router.get('/profiles/', auth, userCtrl.getAllProfiles);
 router.put('/profiles/:id', auth, upload, userCtrl.editProfile);

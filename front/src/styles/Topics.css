@@ -1,6 +1,5 @@
 #page-topics{
-    list-style: none;
-    padding: 0;
+    list-style: decimal;
 }
 .page-topic{
     font-size: 30px;

@@ -54,3 +54,19 @@ export const EditUserEmail = (email) => {
         })
       .catch((err) => err);
 }
+
+export const DeleteUser = (password) => {
+
+  return axios.delete(BASE_URL + 'users/'+sessionStorage.getItem("userId")+"/",{ 
+    headers: { Authorization: 'Bearer '+sessionStorage.getItem("token") },
+    data:{
+        userId : sessionStorage.getItem("userId"),
+        password: password
+    }
+  })
+      .then((res) =>{
+        console.log(res);
+        return res;
+        })
+      .catch((err) => err);
+}

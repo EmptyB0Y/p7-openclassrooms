@@ -1,6 +1,7 @@
 #account-frame{
     min-width: 580px;
     margin-left: 50px;
+    margin-right: 50px;
     height: 800px;
     padding: 15px;
     border: 1px solid cornflowerblue;

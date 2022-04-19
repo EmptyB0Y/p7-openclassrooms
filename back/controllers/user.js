@@ -174,43 +174,32 @@ exports.deleteUser = (req, res) =>{
 
     User.findOne({where:{uid : res.locals.userId}})
     .then((userDeleting)=>{
-      User.findOne({where:{uid : req.params.id}})
+      User.findOne({where:{uid : String(req.params.id)}})
       .then((user) =>{
         if(userDeleting.access !== "admin" && String(user.uid) !== res.locals.userId){
           return res.status(403).json({message: "Forbidden !"});
         }
         if(String(user.uid) === res.locals.userId){
-          try{
-              bcrypt.compare(req.body.password, user.password)
-              .then(valid => {
-                if (!valid) {
-                  return res.status(401).json({ error: 'Mot de passe incorrect !' });
-                }
-              })
-            .catch(error => res.status(500).json({ error }));
-            }
-            catch(err){
-              console.log(err);
-            }
-        }
-        User.destroy({where:{uid : req.body.userId}})
-        .then(() => {
-          Profile.findAll((profiles) => {
-            for(let i = 0; i < profiles.length; i++){
-              if(profiles[i].userId === res.locals.userId){
-                Profile.destroy({where:{uid: profiles[i].userId}})
-                .then(() => {
-                    res.status(200).json({ message: 'Profil supprimé !'});
-                })
-                .catch(() => res.status(400).json({ message: 'Erreur lors de la deletion du profil !' }));
+          console.log(req.body.password);
+            bcrypt.compare(req.body.password, user.password)
+            .then(valid => {
+              if (!valid) {
+                return res.status(403).json({ error: 'Mot de passe incorrect !' });
               }
-            }
-          })
-          .catch(() => res.status(404).json({message: 'Not found !'}));
+            })
+          .catch(error => res.status(500).json({ error, message: "test" }));
+        }
+        User.destroy({where:{uid : String(req.params.id)}})
+        .then(() => {
+            Profile.destroy({where:{userId: String(req.params.id)}})
+            .then(() => {
+              return res.status(200).json({ message: 'Profil supprimé !'});
+            })
+            .catch(() => res.status(301).json({ message: 'Erreur lors de la deletion du profil !'}));
         })
-        .catch(() => res.status(400).json({ message: 'Erreur lors de la deletion de l\'utilisateur !' }));
+        .catch(() => res.status(500).json({ message: 'Erreur lors de la deletion de l\'utilisateur !' }));
       })
-      .catch(() => res.status(404).json({message: 'Not found !'}));
+      .catch(() => res.status(404).json({message: 'User not found !'}));
     })
     .catch(() => res.status(404).json({message: 'Not found !'}));
 };
