@@ -22,25 +22,19 @@ const sortTopics = async (tab) =>{
     if(sorting[tab[i].count] === undefined){
       sorting[tab[i].count] = tab[i].topic;
     }
-    //console.log(sorting[tab[i]]);
   }
-  console.log("Sorting : ");
-  console.log(sorting);
 
   for(let i of Object.keys(sorting)){
     if(Number(i) > topValue){
       topValue = i;
     }
   }
-  console.log("topValue : ");
-  console.log(topValue);
+
   for(let i = topValue; i > 0; i--){
     if(sorting[i] !== undefined){
       sorted.push({topic:sorting[i],count:i});
     }
   }
-  console.log("Sorted : ");
-  console.log(sorted);
   return sorted;
 }
 
@@ -56,20 +50,12 @@ exports.getAllPostsTopics = (req,res) =>{
       Post.findAndCountAll({where:{topic:String(post.topic)}})
       .then(result =>{
         id++;
-        console.log(id);
-        console.log(all.count);
-        console.log(post.topic);
-        console.log("---");
 
         if(topics.length === 0 && post.topic !== "notopic"){
           topics.push({topic: post.topic,count: result.count});
         }
         else{
           for(let i = 0; i < topics.length; i++){
-            console.log(JSON.stringify(topics[i]) +" : "+ JSON.stringify({topic: post.topic,count: result.count}));
-            console.log("same ?");
-            console.log(JSON.stringify(topics[i]) === JSON.stringify({topic: post.topic,count: result.count}));
-            console.log("-----");
             if(post.topic !== "notopic" && JSON.stringify(topics[i]) !== JSON.stringify({topic: post.topic,count: result.count})){
               topics.push({topic: post.topic,count: result.count});
               break;
@@ -78,10 +64,6 @@ exports.getAllPostsTopics = (req,res) =>{
         }
         
         if(id === all.count && !sent){
-          console.log("-------------------------");
-          console.log(topics);
-          console.log("-------------------------");          
-          console.log("Sent");
           sent = true;
           sortTopics(topics).then((sorted)=>{
             return res.status(200).json(sorted);
@@ -123,8 +105,6 @@ exports.postPost = (req, res) => {
   }
 
   let PostCreated = {...req.body};
-  console.log(req.body);
-  console.log("Post created : ");
   PostCreated.userId = res.locals.userId;
   if(PostCreated.likes || 
     PostCreated.dislikes || 
@@ -143,7 +123,7 @@ exports.postPost = (req, res) => {
       PostCreated.topic = 'notopic';
     }
   }
-  console.log(PostCreated);
+
   Post.create({...PostCreated}).then(() => {
       res.status(201).json({message: "Objet créé !"});
     })
@@ -262,7 +242,6 @@ exports.deletePost = (req,res) => {
 };
 
 exports.postLike = (req,res) => {
-  console.log(req.body.like);
 
   if(req.body.like && req.body.like === 1 || req.body.like === -1){
     Post.findOne({where:{ uid: req.params.id}})
@@ -315,7 +294,6 @@ exports.postLike = (req,res) => {
         }
       }
     
-    console.log("likes : "+PostLiked.usersLiked);
     Post.update( {...PostLiked}, {where:{uid: req.params.id}})
       .then(() => res.status(200).json({ message: 'Like ajouté !'}))
       .catch(() => res.status(500).json({ message: 'Erreur lors de l\'ajout du like !'}));

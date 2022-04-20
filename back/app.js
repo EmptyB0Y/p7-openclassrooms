@@ -11,27 +11,25 @@ const userRoutes = require('./routes/user');
 const {sequelize, Sequelize} = require('./models/index');
 const pg = require('pg');
 
-/*const sequelize = new Sequelize('postgres://postgres:postgres@localhost:5432/sequelize_db', {
-  dialectModule: pg
-});*/
 
 async function syncDb() {
   await sequelize.sync();
 }
 
+//Syncronize database
 syncDb();
 
 //Set up environment variables access
 dotenv.config({path:".env"});
 
 const apiRequestLimiter = expressRateLimit({
-  windowMs: 15 * 60 * 1000, //request window : 15 minutes
-  max: 1000, //max requests that can be sent by each ip address in the request window (1000 requests in 15 minutes)
+  windowMs: 5 * 60 * 1000, //request window : 5 minutes
+  max: 10000, //max requests that can be sent by each ip address in the request window (1000 requests in 15 minutes)
   message: "Too much requests !"
 });
 
 //Limit requests
-//app.use(apiRequestLimiter);
+app.use(apiRequestLimiter);
 
 //Allow CORS request
 app.use(cors({

@@ -10,7 +10,7 @@ export const EditSecondaryInfos = (profile) =>{
     useEffect(()=>{
         let editElement = <div></div>;
         if(profile.profile.canEdit){
-            editElement = (<button id='edit-main-infos-btn' onClick={() => handleClickSecondaryInfos()}><img id='edit-main-infos-img' src={pen} width='20' height='20'></img></button>);
+            editElement = (<button id='edit-secondary-infos-btn' onClick={() => handleClickSecondaryInfos()}><img id='edit-secondary-infos-img' src={pen} width='20' height='20'></img></button>);
         }
         setState( 
         <div>

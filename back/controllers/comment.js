@@ -88,7 +88,7 @@ exports.postComment = (req,res) => {
                   "usersDisliked" : post.usersDisliked,
                   "comments" : tab2
                 }
-                console.log(PostModified);
+
                 Post.update({ ...PostModified},{where:{ uid: postId}})
                 .then(() => res.status(200).json({ message: 'Opération réussie !'}))
                 .catch(() => res.status(400).json({ message: 'Erreur lors de l\'opération !'}));              

@@ -75,7 +75,7 @@ export const Profile = (userId) =>{
       }
 
       DelPost(postId)
-      .then(()=>{ refresh() });
+      .then(()=>{ refresh();});
   }
     const handleInput = (e) => {
       const file = Array.from(e.target.files);
@@ -144,9 +144,9 @@ export const Profile = (userId) =>{
 
     useEffect(() => {
       GetProfilePosts(userId)
-      .then(data => setProfilePosts(data))
+      .then(data => setProfilePosts(data.reverse()))
       .catch((err) => console.log(err)) 
-    }, [])
+    }, [change])
 
     let editMainInfosElement = <></>;
     let editSecondaryInfosElement = <></>;
@@ -172,9 +172,6 @@ export const Profile = (userId) =>{
         console.log(sessionStorage.getItem("userId"));
         editMainInfosElement = <EditMainInfos profile={p}/>;
         editSecondaryInfosElement = <EditSecondaryInfos profile={p}/>;
-      }
-
-      if(profile.userId === sessionStorage.getItem("userId") || viewingProfile.access === "admin"){
         editProfilePictureElement = (
         <form onSubmit={(e) => handleSubmit(e)}>
           <input type='file' id='upload' onInput={(e) => handleInput(e)} width='20' height='20' multiple />
@@ -183,7 +180,7 @@ export const Profile = (userId) =>{
       }
       postsElement = (        
       <ul>
-        {posts.slice(0,iterations).reverse().map((post) =>
+        {posts.slice(0,iterations).map((post) =>
           <li className='post' key={post.uid}>
               <div className='post-title'>
               <div className='post-author'>

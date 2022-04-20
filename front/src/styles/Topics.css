@@ -1,5 +1,6 @@
 #page-topics{
     list-style: decimal;
+    background-image: radial-gradient(rgb(234, 116, 116), aliceblue);
 }
 .page-topic{
     font-size: 30px;

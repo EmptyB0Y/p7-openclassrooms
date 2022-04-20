@@ -92,8 +92,6 @@ exports.register = (req, res) => {
     }
       createUser(req.body,hash,access).then((userCreated)=>{
         createProfile(req.body,userCreated).then((profileCreated)=>{
-          console.log(userCreated)
-          console.log(profileCreated);
           res.status(201).json({ message: 'Utilisateur et profil créés !'});
         })
       .catch(err =>{
@@ -180,7 +178,6 @@ exports.deleteUser = (req, res) =>{
           return res.status(403).json({message: "Forbidden !"});
         }
         if(String(user.uid) === res.locals.userId){
-          console.log(req.body.password);
             bcrypt.compare(req.body.password, user.password)
             .then(valid => {
               if (!valid) {
@@ -319,7 +316,6 @@ exports.textSearchProfile = (req, res) =>{
     limit: 10
   })
   .then((profiles) => {
-    console.log(profiles);
     res.status(200).json(profiles);
 
   })
@@ -327,8 +323,6 @@ exports.textSearchProfile = (req, res) =>{
 }
 
 exports.editProfile = (req, res) =>{
-
-  console.log(req.body);
 
   if((!req.body.firstname &&
     !req.body.lastname &&
@@ -347,9 +341,7 @@ exports.editProfile = (req, res) =>{
       }
 
       if(req.body.profile){
-        console.log("profile : "+JSON.parse(req.body.profile));
         ProfileModified = JSON.parse(req.body.profile);
-        console.log("test");
       }
       else{
         ProfileModified = {
@@ -384,7 +376,6 @@ exports.editProfile = (req, res) =>{
           }
         }
         ProfileModified.pictureUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
-        console.log(ProfileModified);
       }
       Profile.update({...ProfileModified} ,{where:{userId : ProfileFound.userId}})
       .then(() => {

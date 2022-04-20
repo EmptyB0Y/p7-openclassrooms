@@ -120,7 +120,7 @@ export const Posts = (topic) => {
       useEffect(() => {
         console.log(topic.topic);
         GetPosts(topic.topic)
-        .then(data => setPosts(data))
+        .then(data => setPosts(data.reverse()))
         .catch((err) => console.log(err)) 
       }, [change])
 
@@ -157,7 +157,7 @@ export const Posts = (topic) => {
         }
         postsElement = (
             <ul>
-              {posts.slice(0,iterations).reverse().map((post) =>
+              {posts.slice(0,iterations).map((post) =>
                 <li className='post' key={post.uid}>
                     <div className='post-title'>
                         <div className='post-author'>
