@@ -83,7 +83,6 @@ export const Posts = (topic) => {
     const handleClickDislike = (e) =>{
         e.preventDefault();
         let postId = String(e.target.parentNode.id).substring(8);
-        console.log(postId);
         LikePost(postId,-1)
         .then(()=>{ refresh() });
     }
@@ -95,13 +94,15 @@ export const Posts = (topic) => {
     const formatContent = (text) =>{
         const tab = text.split(' ');
         let content = [];
-        console.log(tab);
         let string = '';
         for(let i = 0; i < tab.length; i++){
             if(tab[i].startsWith(':') && tab[i].endsWith(':')){
                 content.push((<p>{string}</p>));
                 string = '';
                 content.push((<img src={tab[i].substring(1,tab[i].length-1)}></img>));
+            }
+            else if(tab[i].split('.').length > 1){
+                content.push((<a href={tab[i]}>{tab[i]}</a>));
             }
             else{
                 string += ' '+tab[i];
@@ -118,9 +119,8 @@ export const Posts = (topic) => {
     }
 
       useEffect(() => {
-        console.log(topic.topic);
         GetPosts(topic.topic)
-        .then(data => setPosts(data.reverse()))
+        .then(data => setPosts(data))
         .catch((err) => console.log(err)) 
       }, [change])
 
@@ -145,7 +145,7 @@ export const Posts = (topic) => {
         }
     }, [posts])
 
-    let postsElement = (<div>"Loading..."</div>)
+    let postsElement = (<div>"Loading..."</div>);
 
     if(load){
         let deletePostElement = {};

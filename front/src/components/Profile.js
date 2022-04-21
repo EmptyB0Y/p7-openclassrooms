@@ -63,7 +63,6 @@ export const Profile = (userId) =>{
     const handleClickDislike = (e) =>{
       e.preventDefault();
       let postId = String(e.target.parentNode.id).substring(8);
-      console.log(postId);
       LikePost(postId,-1)
       .then(()=>{ refresh() });
     }
@@ -90,11 +89,9 @@ export const Profile = (userId) =>{
     const handleSubmit = (e) => {
       e.preventDefault();
       if(formData !== null){
-        console.log("form data : "+formData);
         EditProfile(profile,formData)
         .then((data) =>{
           refresh();
-          console.log(data);
         })
       }
     }
@@ -102,13 +99,15 @@ export const Profile = (userId) =>{
     const formatContent = (text) =>{
       const tab = text.split(' ');
       let content = [];
-      console.log(tab);
       let string = '';
       for(let i = 0; i < tab.length; i++){
           if(tab[i].startsWith(':') && tab[i].endsWith(':')){
               content.push((<p>{string}</p>));
               string = '';
               content.push((<img src={tab[i].substring(1,tab[i].length-1)}></img>));
+          }
+          else if(tab[i].split('.').length > 1){
+            content.push((<a href={tab[i]}>{tab[i]}</a>));
           }
           else{
               string += ' '+tab[i];
@@ -144,7 +143,7 @@ export const Profile = (userId) =>{
 
     useEffect(() => {
       GetProfilePosts(userId)
-      .then(data => setProfilePosts(data.reverse()))
+      .then(data => setProfilePosts(data))
       .catch((err) => console.log(err)) 
     }, [change])
 
@@ -168,8 +167,6 @@ export const Profile = (userId) =>{
       editSecondaryInfosElement = <EditSecondaryInfos profile={p}/>;
       if(profile.userId === sessionStorage.getItem("userId") || viewingProfile.access === "admin"){
         p.canEdit = true
-        console.log(profile.userId);
-        console.log(sessionStorage.getItem("userId"));
         editMainInfosElement = <EditMainInfos profile={p}/>;
         editSecondaryInfosElement = <EditSecondaryInfos profile={p}/>;
         editProfilePictureElement = (

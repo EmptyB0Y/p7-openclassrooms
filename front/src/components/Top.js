@@ -29,7 +29,6 @@ export const Top = () =>{
 
     let topicsElement = <></>;
     if(load){
-        console.log(topics);
         topicsElement = (
         <ul>{topics.map((top)=>
         <li className='topic' key={top.topic} id={top.topic} onClick={(e) => handleClickTopic(e)}>
@@ -80,9 +79,7 @@ export const Top = () =>{
     function handleClickTopic(e){
         e.preventDefault();
         e.stopPropagation();
-        console.log(e.target);
         let topicId = e.target.id;
-        console.log(topicId);
         if(topicId === ''){
             topicId = ReactDOM.findDOMNode(e.target).parentNode.id;
         }

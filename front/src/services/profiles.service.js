@@ -7,7 +7,6 @@ export const GetProfile = (userId) => {
   const options = {
         headers: { Authorization: 'Bearer '+sessionStorage.getItem("token") }
     };
-    console.log("User id : " + userId);
     return axios.get(BASE_URL + 'profiles/'+userId.id,options)
       .then((res) =>{
         console.log(res.data);
@@ -21,10 +20,8 @@ export const GetProfilePosts = (userId) => {
   const options = {
       headers: { Authorization: 'Bearer '+sessionStorage.getItem("token") }
   };
-  console.log(userId.id);
   return axios.get(BASE_URL + 'profiles/'+userId.id+'/posts',options)
     .then((res) =>{
-      console.log(res.data);
       return res.data;
       })
     .catch((err) => err);

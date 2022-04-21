@@ -1,7 +1,7 @@
-import { TextSearchProfiles } from "../services/profiles.service";
-import {Profile} from "./Profile";
-import {Top} from "./Top";
-import ReactDOM from 'react-dom';
+import { TextSearchProfiles } from "../services/profiles.service"
+import {Profile} from "./Profile"
+import {Top} from "./Top"
+import ReactDOM from 'react-dom'
 
 export const Searchbar = () =>{
 

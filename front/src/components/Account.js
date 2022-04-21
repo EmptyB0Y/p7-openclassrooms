@@ -1,6 +1,6 @@
 import "../styles/Account.css"
 import { useEffect, useState } from "react";
-import { GetUser, EditUserPassword, EditUserEmail, DeleteUser } from "../services/accounts.service";
+import { GetUser, EditUserPassword, EditUserEmail, DeleteUser } from "../services/accounts.service"
 import {ReactSession} from 'react-client-session'
 import ReactDOM from 'react-dom'
 

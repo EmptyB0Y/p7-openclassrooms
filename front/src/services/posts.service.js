@@ -46,7 +46,6 @@ export const PostPost = (text,topic,data=null) => {
 
 export const DelPost = (postId) =>{
 
-  console.log("post id : "+postId);
   return axios.delete(BASE_URL + 'posts/'+postId+"",{
       headers: { Authorization: 'Bearer '+sessionStorage.getItem("token") },
       data:{

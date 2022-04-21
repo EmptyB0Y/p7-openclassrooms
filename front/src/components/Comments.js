@@ -5,7 +5,7 @@ import {SearchProfiles} from '../services/profiles.service'
 import {Profile} from './Profile'
 import { Top } from './Top'
 import {GifSearch} from './GifSearch'
-import TextareaAutosize from 'react-textarea-autosize';
+import TextareaAutosize from 'react-textarea-autosize'
 import ReactDOM from 'react-dom'
 
 export const Comments = (id) => {
@@ -99,6 +99,9 @@ export const Comments = (id) => {
                 content.push((<p>{string}</p>));
                 string = '';
                 content.push((<img src={tab[i].substring(1,tab[i].length-1)}></img>));
+            }
+            else if(tab[i].split('.').length > 1){
+                content.push((<a href={tab[i]}>{tab[i]}</a>));
             }
             else{
                 string += ' '+tab[i];

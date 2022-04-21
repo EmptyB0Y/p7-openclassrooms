@@ -20,9 +20,7 @@ export const Topics = () => {
     function handleClickTopic(e){
         e.preventDefault();
         e.stopPropagation();
-        console.log(e.target);
         let topicId = e.target.id;
-        console.log(topicId);
         if(topicId === ''){
             topicId = ReactDOM.findDOMNode(e.target).parentNode.id;
         }
@@ -48,7 +46,6 @@ export const Topics = () => {
     useEffect(() => {
         GetTopics()
         .then(data => {
-            console.log(data);
             setTopics(data);
             setLoad(true);
         })

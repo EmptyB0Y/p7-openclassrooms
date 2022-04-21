@@ -5,7 +5,7 @@ import {Banner} from './Banner'
 import {Top} from './Top'
 import {Posts} from './Posts'
 import { useEffect, useState } from 'react'
-import TextareaAutosize from 'react-textarea-autosize';
+import TextareaAutosize from 'react-textarea-autosize'
 import ReactDOM from 'react-dom'
 
 export const AddPost = (topic) => {

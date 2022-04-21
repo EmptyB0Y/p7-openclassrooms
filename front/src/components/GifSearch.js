@@ -42,18 +42,15 @@ export const GifSearch = (place) =>{
     }
 
     function handleClickCloseGifs(){
-        console.log(place);
         ReactDOM.render(<></>, document.getElementById('gif-anchor-'+place.place));
     }
 
     function handleClickGif(e){
-        console.log(place.place);
         if(place.place !== 'addpost'){
             document.getElementById('comment-input-'+place.place).value += " :"+e.target.src+":";
         }
         else{
-            console.log(document.getElementById('addpost-input').innerText);
-            document.getElementById('addpost-input').innerText += " :"+e.target.src+":";
+            document.getElementById('addpost-input').value += " :"+e.target.src+":";
         }
     }
 

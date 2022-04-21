@@ -28,10 +28,7 @@ function handleSubmit(e) {
     e.preventDefault()
     const email = e.target['email-input'].value;
     const password = e.target['password-input'].value;
-    console.log(email + " : " + password);
     LoginUser(email,password).then((data) => {
-        console.log("data : ");
-        console.log(data);
         if(data.token){
             ReactSession.set("userId",data.userId);
             ReactSession.set("token",data.token);

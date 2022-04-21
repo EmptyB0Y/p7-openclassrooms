@@ -1,4 +1,4 @@
-const {Sequelize,sequelize, User, Profile} = require('../models/');
+const {Sequelize,sequelize, User, Profile, Comment, Post} = require('../models/');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
@@ -190,7 +190,13 @@ exports.deleteUser = (req, res) =>{
         .then(() => {
             Profile.destroy({where:{userId: String(req.params.id)}})
             .then(() => {
-              return res.status(200).json({ message: 'Profil supprimé !'});
+              res.status(200).json({ message: 'Profil supprimé !'});
+              Post.destroy({where:{userId: req.params.id}}).then(()=>{
+                console.log("Posts from "+req.params.id+" deleted !");
+                Comment.destroy({where:{userId: req.params.id}}).then(()=>{
+                  console.log("Comments from "+req.params.id+" deleted !");
+                });
+              });
             })
             .catch(() => res.status(301).json({ message: 'Erreur lors de la deletion du profil !'}));
         })

@@ -10,7 +10,6 @@ export const GetUser = (userId) => {
 
     return axios.get(BASE_URL + 'users/'+userId,options)
       .then((res) =>{
-        console.log(res.data);
         return res.data;
         })
       .catch((err) => err);
@@ -30,7 +29,6 @@ export const EditUserPassword = (oldPassword,newPassword) => {
 
   return axios.put(BASE_URL + 'users/'+sessionStorage.getItem("userId")+"/changePassword",bodyParameters,options)
       .then((res) =>{
-        console.log(res);
         return res;
         })
       .catch((err) => err);
@@ -49,7 +47,6 @@ export const EditUserEmail = (email) => {
 
   return axios.put(BASE_URL + 'users/'+sessionStorage.getItem("userId")+"/changeEmail",bodyParameters,options)
       .then((res) =>{
-        console.log(res);
         return res;
         })
       .catch((err) => err);
@@ -65,7 +62,6 @@ export const DeleteUser = (password) => {
     }
   })
       .then((res) =>{
-        console.log(res);
         return res;
         })
       .catch((err) => err);

@@ -3,12 +3,12 @@ const fs = require('fs');
 
 exports.getAllPosts = (req,res) =>{
   if(req.params.topic === "notopic"){
-    Post.findAll()
+    Post.findAll({ order: [['createdAt', 'DESC']]})
       .then(Posts => res.status(200).json(Posts))
       .catch(error => res.status(500).json({ error }));
   }
   else{
-    Post.findAll({where:{topic:req.params.topic}})
+    Post.findAll({where:{topic:req.params.topic}, order: [['createdAt', 'DESC']]})
     .then(Posts => res.status(200).json(Posts))
     .catch(error => res.status(500).json({ error }));
   }
