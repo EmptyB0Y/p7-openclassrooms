@@ -9,3 +9,9 @@
 .relative{
   position: relative;
 }
+
+@media (max-width:380px){
+  #root{
+    max-width: 380px;
+  }
+}

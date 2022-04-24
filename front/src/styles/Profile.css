@@ -49,7 +49,11 @@
     height: 280px;
 }
 #posts-frame{
-    min-width: 580px;
+    background-image:  radial-gradient(rgb(234, 116, 116), aliceblue);
+    border: 2px solid rgb(32, 32, 110);
+    width: 96%;
+    margin-top: 20px;
+    margin-left: 20px;
 }
 #posts-frame ul{
     list-style-type: none;
